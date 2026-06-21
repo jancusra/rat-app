@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,6 +10,13 @@ namespace Rat.Domain
     /// </summary>
     public partial interface IRepository
     {
+        /// <summary>
+        /// Run the given action inside a single database transaction so multiple writes
+        /// commit together (or roll back as a whole if the action throws).
+        /// </summary>
+        /// <param name="action">unit of work to run transactionally</param>
+        Task ExecuteInTransactionAsync(Func<Task> action);
+
         /// <summary>
         /// Get specific entity by ID
         /// </summary>

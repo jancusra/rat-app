@@ -22,6 +22,11 @@ namespace Rat.DataStorage
             _dataProvider = dataProvider;
         }
 
+        public virtual async Task ExecuteInTransactionAsync(Func<Task> action)
+        {
+            await _dataProvider.ExecuteInTransactionAsync(action);
+        }
+
         public virtual async Task<TEntity> GetByIdAsync<TEntity>(int id) where TEntity : TableEntity
         {
             return await _dataProvider.GetTable<TEntity>().FirstOrDefaultAsync(x => x.Id == id);

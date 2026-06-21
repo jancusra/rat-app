@@ -23,28 +23,85 @@ namespace Rat.DataStorage.DataProviders
         /// </summary>
         private DataContext _queryDataContext;
 
+        /// <summary>
+        /// Ambient transactional connection set for the duration of <see cref="ExecuteInTransactionAsync"/>.
+        /// While non-null, insert/update/delete run on it instead of opening their own connection, so they
+        /// share one transaction. Single instance per scope/request and only used sequentially.
+        /// </summary>
+        private DataConnection _transactionConnection;
+
         protected abstract IDataProvider LinqToDbDataProvider { get; }
 
         protected abstract DbConnection GetInternalDbConnection(string connectionString);
 
         public virtual async Task<TEntity> InsertEntityAsync<TEntity>(TEntity entity) where TEntity : TableEntity
         {
-            using var dataContext = CreateDataConnection();
-            entity.Id = await dataContext.InsertWithInt32IdentityAsync(entity);
-
-            return entity;
+            return await ExecuteOnConnectionAsync(async connection =>
+            {
+                entity.Id = await connection.InsertWithInt32IdentityAsync(entity);
+                return entity;
+            });
         }
 
         public virtual async Task UpdateEntityAsync<TEntity>(TEntity entity) where TEntity : TableEntity
         {
-            using var dataContext = CreateDataConnection();
-            await dataContext.UpdateAsync(entity);
+            await ExecuteOnConnectionAsync(connection => connection.UpdateAsync(entity));
         }
 
         public virtual async Task DeleteEntityAsync<TEntity>(TEntity entity) where TEntity : TableEntity
         {
-            using var dataContext = CreateDataConnection();
-            await dataContext.DeleteAsync(entity);
+            await ExecuteOnConnectionAsync(connection => connection.DeleteAsync(entity));
+        }
+
+        public virtual async Task ExecuteInTransactionAsync(Func<Task> action)
+        {
+            if (action is null)
+                throw new ArgumentNullException(nameof(action));
+
+            // Already inside a transaction (nested call) -> join it so the whole unit of work
+            // commits or rolls back together.
+            if (_transactionConnection != null)
+            {
+                await action();
+                return;
+            }
+
+            using var dataConnection = CreateDataConnection();
+            await dataConnection.BeginTransactionAsync();
+            _transactionConnection = dataConnection;
+
+            try
+            {
+                await action();
+                await dataConnection.CommitTransactionAsync();
+            }
+            catch
+            {
+                await dataConnection.RollbackTransactionAsync();
+                throw;
+            }
+            finally
+            {
+                _transactionConnection = null;
+            }
+        }
+
+        /// <summary>
+        /// Run a write operation on the ambient transaction connection when a transaction is active,
+        /// otherwise on a fresh short-lived connection disposed right after.
+        /// </summary>
+        /// <typeparam name="TResult">operation result type</typeparam>
+        /// <param name="operation">operation to run against the connection</param>
+        /// <returns>operation result</returns>
+        private async Task<TResult> ExecuteOnConnectionAsync<TResult>(Func<DataConnection, Task<TResult>> operation)
+        {
+            if (_transactionConnection != null)
+            {
+                return await operation(_transactionConnection);
+            }
+
+            using var dataConnection = CreateDataConnection();
+            return await operation(dataConnection);
         }
 
         public virtual ITable<TEntity> GetTable<TEntity>() where TEntity : TableEntity

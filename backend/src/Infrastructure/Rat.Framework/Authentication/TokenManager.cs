@@ -8,7 +8,6 @@ using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Rat.Domain;
-using Rat.Domain.Entities;
 using Rat.Domain.Exceptions;
 using Rat.Services;
 
@@ -74,7 +73,7 @@ namespace Rat.Framework.Authentication
             }
             else
             {
-                throw new NonExistingEntityEntryException(nameof(User));
+                throw new InvalidCredentialsException();
             }
         }
 

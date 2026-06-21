@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using LinqToDB;
 using Rat.Domain;
 
@@ -6,6 +7,14 @@ namespace Rat.DataStorage
 {
     public partial interface IDbDataProvider
     {
+        /// <summary>
+        /// Run the given action inside a single database transaction. All writes performed
+        /// through this provider during the action share the transaction and are committed
+        /// together, or rolled back if the action throws.
+        /// </summary>
+        /// <param name="action">unit of work to run transactionally</param>
+        Task ExecuteInTransactionAsync(Func<Task> action);
+
         /// <summary>
         /// Insert entity to the database
         /// </summary>

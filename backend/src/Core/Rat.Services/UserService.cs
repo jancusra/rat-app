@@ -127,26 +127,31 @@ namespace Rat.Services
             if (password != passwordVerify)
                 return false;
 
-            var newUser = new User 
-            {
-                UserGuid = Guid.NewGuid(),
-                Email = email,
-                IsActive = true,
-                CreatedUTC = DateTime.UtcNow
-            };
-
-            await _repository.InsertAsync(newUser);
-
             var passwordSalt = _hashingService.GenerateSalt();
             var passwordHash = _hashingService.GetHashByType(_userOptions.Value.PasswordHashing, password, true, passwordSalt);
 
-            await _repository.InsertAsync(new UserPassword 
+            // User and its password are inserted together so a failure on the second insert
+            // cannot leave an orphaned user without a password.
+            await _repository.ExecuteInTransactionAsync(async () =>
             {
-                UserId = newUser.Id,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
-                HashTypeId = (int)_userOptions.Value.PasswordHashing,
-                CreatedUTC = DateTime.UtcNow
+                var newUser = new User
+                {
+                    UserGuid = Guid.NewGuid(),
+                    Email = email,
+                    IsActive = true,
+                    CreatedUTC = DateTime.UtcNow
+                };
+
+                await _repository.InsertAsync(newUser);
+
+                await _repository.InsertAsync(new UserPassword
+                {
+                    UserId = newUser.Id,
+                    PasswordHash = passwordHash,
+                    PasswordSalt = passwordSalt,
+                    HashTypeId = (int)_userOptions.Value.PasswordHashing,
+                    CreatedUTC = DateTime.UtcNow
+                });
             });
 
             return true;
