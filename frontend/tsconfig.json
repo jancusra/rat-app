@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "rootDir": "src",
+        "lib": ["es6", "dom"],
+        "noImplicitThis": true,
+        "noEmit": true,
+        "strictNullChecks": true,
+        "esModuleInterop": true,
+        "allowJs": true,
+        "jsx": "react-jsx"
+    },
+    "include": [
+        "./src/**/*", 
+        "src/custom.d.ts"
+    ],
+    "exclude": [
+        "dist"
+    ]
+}

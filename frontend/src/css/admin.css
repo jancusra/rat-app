@@ -1,0 +1,97 @@
+html, body,
+#root { 
+    height: 100%; 
+    width: 100%; 
+    /*background: #494b5a;*/
+}
+
+/* menu tree */
+.MuiList-root .MuiListSubheader-root {
+    line-height: 2em;
+}
+
+.MuiList-root .MuiListItemButton-root {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.MuiList-root .MuiListItemIcon-root {
+    min-width: 42px;
+}
+
+.admin-menu-icon {
+    float: left;
+    padding: 6px 0 !important;
+}
+
+.admin-menu-icon .material-icons {
+    color: #fff !important;
+    font-size: 28px;
+}
+
+/* admin layout */
+.admin-menu {
+    position: fixed;
+    top: 40px;
+    bottom: 0;
+    left: 0;
+    float: none;
+    width: 300px;
+    z-index: 1000;
+    background-color: #fff;
+}
+
+.admin-content {
+    position: fixed;
+    top: 40px;
+    bottom: 0;
+    left: 300px;
+    right: 0;
+    float: none;
+    padding: 10px;
+}
+
+.rat-common-form .form-final-buttons button {
+    width: 49%;
+    margin: 20px 0.5% 0 0.5%;
+}
+
+.MuiDataGrid-main .MuiAutocomplete-root .MuiOutlinedInput-notchedOutline {
+    border-width: 0;
+}
+
+.MuiDataGrid-main .MuiAutocomplete-root .MuiInputBase-root {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.MuiDataGrid-main .MuiDataGrid-row {
+    min-height: 52px !important;
+}
+
+/* detail */
+.detail-name {
+    width: 150px;
+    font-weight: bold;
+}
+
+.table-detail td {
+    padding: 5px 0;
+}
+
+/* colored icons */
+.material-icons.debug {
+    color: #808080
+}
+.material-icons.information {
+    color: #6699ff
+}
+.material-icons.warning {
+    color: #ffcc00
+}
+.material-icons.error {
+    color: #cc0000
+}
+.material-icons.fatal {
+    color: #cc0000
+}

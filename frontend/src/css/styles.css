@@ -1,0 +1,191 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* font icons */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(../fonts/MaterialIcons-Regular.eot);
+  src: local('Material Icons'),
+    local('MaterialIcons-Regular'),
+    url(../fonts/MaterialIcons-Regular.woff2) format('woff2'),
+    url(../fonts/MaterialIcons-Regular.woff) format('woff'),
+    url(../fonts/MaterialIcons-Regular.ttf) format('truetype');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  color: #4d4f5e;
+
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+  /* Support for IE. */
+  font-feature-settings: 'liga';
+}
+
+/* initialization */
+.app {
+  text-align: center;
+}
+
+.app-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .app-logo {
+    animation: app-logo-spin infinite 20s linear;
+  }
+}
+
+.app-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.app-link {
+  color: #61dafb;
+}
+
+@keyframes app-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* web header */
+.rat-web-header {
+  height: 40px;
+  background-color: #4d4f5e;
+  vertical-align: top;
+  position: relative;
+}
+
+.rat-web-header div {
+  display: inline-block;
+  vertical-align: top;
+  margin: 0 0 0 10px;
+  padding: 10px 0 2px;
+  height: 28px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.rat-web-header .logged-user-email {
+  color: limegreen;
+}
+
+.rat-web-header .admin-link {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  color: #ffcc00;
+}
+
+.logged-user {
+  float: left;
+}
+
+.language-panel {
+  float: right;
+}
+
+.language-image {
+  width: 25px;
+  height: 25px;
+  margin: 0 8px 0 0;
+}
+
+/* common form styles */
+.rat-form-box {
+  border: 1px dashed grey;
+  padding: 10px;
+}
+
+.MuiFormControl-root.MuiTextField-root.form-input {
+  display: block;
+  margin: 16px 0;
+}
+
+label.MuiFormControlLabel-root {
+  display: block;
+}
+
+.rat-form-alert {
+  margin: 10px 0;
+}
+
+/* home */
+.action-buttons .rat-image {
+  width: 100%;
+  margin: 0 0 20px;
+}
+
+.action-buttons button {
+  display: block;
+  width: 100%;
+  margin: 6px 0;
+}
+
+/* login/register form */
+.action-buttons,
+.rat-login-box,
+.rat-register-box {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+.rat-login-box button,
+.rat-register-box button {
+  width: 100%;
+  margin: 3px 0;
+}
+
+/* misc customizations */
+.MuiOutlinedInput-root,
+.MuiOutlinedInput-input:not(.MuiAutocomplete-input) {
+  width: 100% !important;
+}
