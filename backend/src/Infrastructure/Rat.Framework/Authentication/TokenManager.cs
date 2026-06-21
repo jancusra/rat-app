@@ -42,6 +42,10 @@ namespace Rat.Framework.Authentication
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.UTF8.GetBytes(_jwtOptions.Value.SecretKey);
 
+                // Single expiry shared by the JWT and the cookie so the cookie disappears
+                // exactly when the token stops being valid (no stale cookie / no mismatch).
+                var expiresUtc = DateTime.UtcNow.AddMinutes(_jwtOptions.Value.ExpiryMinutes);
+
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(
@@ -51,7 +55,7 @@ namespace Rat.Framework.Authentication
                             new Claim(CustomClaimTypes.Id, user.Id.ToString()),
                             new Claim(CustomClaimTypes.IsAdmin, (await _userService.IsUserAdminAsync(user.Id)).ToString())
                         }),
-                    Expires = DateTime.UtcNow.AddMinutes(_jwtOptions.Value.ExpiryMinutes),
+                    Expires = expiresUtc,
                     SigningCredentials = new SigningCredentials(
                         new SymmetricSecurityKey(key),
                         SecurityAlgorithms.HmacSha256Signature)
@@ -60,10 +64,13 @@ namespace Rat.Framework.Authentication
                 var token = tokenHandler.CreateToken(tokenDescriptor);
                 var tokenString = tokenHandler.WriteToken(token);
 
+                var cookieOptions = BuildAuthCookieOptions();
+                cookieOptions.Expires = expiresUtc;
+
                 _httpContextAccessor.HttpContext.Response.Cookies.Append(
                     _jwtOptions.Value.AuthorizationCookieKey,
                     tokenString,
-                    BuildAuthCookieOptions());
+                    cookieOptions);
             }
             else
             {

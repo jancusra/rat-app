@@ -38,14 +38,17 @@ namespace Rat.Services
         {
             var currentUser = _userService.GetCurrentUserClaims();
 
+            // HttpContext is null when logging happens outside a request (e.g. startup migrations).
+            var httpContext = _httpContextAccessor.HttpContext;
+
             var log = new Log
             {
                 LogLevelTypeId = (int)logLevelType,
                 ShortMessage = shortMessage,
                 FullMessage = fullMessage,
                 UserId = currentUser.Id > default(int) ? currentUser.Id : null,
-                PathUrl = _httpContextAccessor.HttpContext.Request.Path,
-                ReferrerUrl = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.Referer],
+                PathUrl = httpContext?.Request.Path.Value,
+                ReferrerUrl = httpContext?.Request.Headers[HeaderNames.Referer].ToString(),
                 CreatedUTC = DateTime.UtcNow
             };
 

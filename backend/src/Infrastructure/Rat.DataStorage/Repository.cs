@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using LinqToDB;
 using Rat.Domain;
@@ -85,10 +86,25 @@ namespace Rat.DataStorage
 
             if (typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity)))
             {
-                queryAll = queryAll.OfType<ISoftDelete>().Where(e => !e.Deleted).OfType<TEntity>();
+                queryAll = queryAll.Where(BuildNotDeletedPredicate<TEntity>());
             }
 
             return await queryAll.ToListAsync();
+        }
+
+        /// <summary>
+        /// Build a "not soft-deleted" predicate (e => !e.Deleted) typed over the concrete
+        /// entity. Accessing the concrete property (instead of OfType on the ISoftDelete
+        /// interface) translates reliably to a SQL WHERE clause in LinqToDB.
+        /// </summary>
+        /// <typeparam name="TEntity">entity type implementing ISoftDelete</typeparam>
+        /// <returns>predicate selecting only non-deleted entities</returns>
+        private static Expression<Func<TEntity, bool>> BuildNotDeletedPredicate<TEntity>() where TEntity : TableEntity
+        {
+            var parameter = Expression.Parameter(typeof(TEntity), "e");
+            var deletedProperty = Expression.Property(parameter, nameof(ISoftDelete.Deleted));
+
+            return Expression.Lambda<Func<TEntity, bool>>(Expression.Not(deletedProperty), parameter);
         }
 
         public virtual IQueryable<TEntity> Table<TEntity>() where TEntity : TableEntity

@@ -79,7 +79,13 @@ namespace Rat.Services
 
         public virtual CurrentUserClaims GetCurrentUserClaims()
         {
-            var identity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+            // HttpContext is null outside of a request (e.g. during startup migrations or
+            // background logging); return empty claims instead of throwing.
+            if (!(_httpContextAccessor.HttpContext?.User?.Identity is ClaimsIdentity identity))
+            {
+                return new CurrentUserClaims { Email = string.Empty };
+            }
+
             var idClaim = identity.FindFirst(CustomClaimTypes.Id);
             var emailClaim = identity.FindFirst(ClaimTypes.Email);
             var isAdminClaim = identity.FindFirst(CustomClaimTypes.IsAdmin);

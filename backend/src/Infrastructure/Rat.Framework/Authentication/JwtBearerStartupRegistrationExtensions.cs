@@ -48,7 +48,7 @@ namespace Rat.Framework.Authentication
                 x.SaveToken = true;
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
-                    RequireExpirationTime = false,
+                    RequireExpirationTime = true,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(issuerKey),
                     ValidateIssuer = false,

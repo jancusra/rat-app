@@ -26,16 +26,27 @@ namespace Rat.Services
         public virtual async Task<IList<MenuItemDto>> GetAdminMenuItemsAsync()
         {
             var allAdminMenuItems = await GetAllMenuItemsByTypeAsync(MenuType.Admin);
-            var result = new List<MenuItemDto>();
 
-            result.AddRange(GetChildMenuItemsByParentId(allAdminMenuItems, default(int)));
+            return BuildMenuTree(allAdminMenuItems, default(int));
+        }
 
-            foreach (var menuItem in result)
+        /// <summary>
+        /// Recursively build the menu tree for a given parent, so menu items nest to any depth
+        /// (not just one level of children).
+        /// </summary>
+        /// <param name="allMenuItems">flat list of all menu items</param>
+        /// <param name="parentMenuItemId">parent ID to build children for (0 = root)</param>
+        /// <returns>ordered list of menu items with their child sub-trees populated</returns>
+        private IList<MenuItemDto> BuildMenuTree(IList<MenuItem> allMenuItems, int parentMenuItemId)
+        {
+            var menuItems = GetChildMenuItemsByParentId(allMenuItems, parentMenuItemId);
+
+            foreach (var menuItem in menuItems)
             {
-                menuItem.ChildMenuItems.AddRange(GetChildMenuItemsByParentId(allAdminMenuItems, menuItem.Id));
+                menuItem.ChildMenuItems.AddRange(BuildMenuTree(allMenuItems, menuItem.Id));
             }
 
-            return result;
+            return menuItems;
         }
 
         /// <summary>

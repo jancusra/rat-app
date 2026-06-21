@@ -14,8 +14,15 @@ namespace Rat.DataStorage.DataProviders
     /// <summary>
     /// Base abstract class for data providers
     /// </summary>
-    public abstract class BaseDataProvider
+    public abstract class BaseDataProvider : IDisposable
     {
+        /// <summary>
+        /// Reusable query context for the lifetime of this provider instance (one per scope/request).
+        /// linq2db's DataContext opens and closes the underlying connection per query, so it is meant
+        /// to be reused; it is disposed together with the provider by the DI container at scope end.
+        /// </summary>
+        private DataContext _queryDataContext;
+
         protected abstract IDataProvider LinqToDbDataProvider { get; }
 
         protected abstract DbConnection GetInternalDbConnection(string connectionString);
@@ -42,8 +49,23 @@ namespace Rat.DataStorage.DataProviders
 
         public virtual ITable<TEntity> GetTable<TEntity>() where TEntity : TableEntity
         {
-            return new DataContext(LinqToDbDataProvider, GetCurrentConnectionString()) { MappingSchema = GetMappingSchema() }
-                .GetTable<TEntity>();
+            _queryDataContext ??= new DataContext(LinqToDbDataProvider, GetCurrentConnectionString())
+            {
+                MappingSchema = GetMappingSchema()
+            };
+
+            return _queryDataContext.GetTable<TEntity>();
+        }
+
+        /// <summary>
+        /// Dispose the reusable query context. Invoked by the DI container when the
+        /// scope (request) that owns this provider instance ends.
+        /// </summary>
+        public void Dispose()
+        {
+            ((IDisposable)_queryDataContext)?.Dispose();
+            _queryDataContext = null;
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
