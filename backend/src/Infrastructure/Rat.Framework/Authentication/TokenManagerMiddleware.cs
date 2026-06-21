@@ -23,10 +23,21 @@ namespace Rat.Framework.Authentication
         /// <param name="next">next delegate</param>
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
+            // JWT authentication already validated the token; here we only enforce the
+            // deny-list (logged-out tokens), and only for requests that actually carry an
+            // authenticated identity. Anonymous requests (e.g. login) are left to the
+            // authorization pipeline rather than paying for a cache lookup here.
+            if (context.User?.Identity?.IsAuthenticated != true)
+            {
+                await next(context);
+
+                return;
+            }
+
             if (await _tokenManager.IsCurrentTokenActiveAsync())
             {
                 await next(context);
-                
+
                 return;
             }
 

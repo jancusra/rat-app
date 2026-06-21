@@ -41,15 +41,16 @@ namespace Rat.Domain.Infrastructure
                 return new T();
             }
 
-            // TODO: later to custom file provider
-            using var fileStream = new FileStream(resultPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var streamReader = new StreamReader(fileStream, Encoding.UTF8);
-            var text = streamReader.ReadToEnd();
+            // Cache atomically: concurrent callers read the file at most once.
+            return Singleton<T>.GetOrCreate(() =>
+            {
+                // TODO: later to custom file provider
+                using var fileStream = new FileStream(resultPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var streamReader = new StreamReader(fileStream, Encoding.UTF8);
+                var text = streamReader.ReadToEnd();
 
-            var settingsModel = JsonConvert.DeserializeObject<T>(text);
-
-            Singleton<T>.Instance = settingsModel;
-            return Singleton<T>.Instance;
+                return JsonConvert.DeserializeObject<T>(text);
+            });
         }
     }
 }

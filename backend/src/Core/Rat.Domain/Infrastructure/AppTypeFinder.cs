@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,6 +18,14 @@ namespace Rat.Domain.Infrastructure
         /// </summary>
         private string RatAssembliesShouldStartsWith { get; set; } = "Rat.";
 
+        /// <summary>
+        /// Cache of resolved assembly-qualified names keyed by "{classType}:{className}".
+        /// Avoids re-scanning every assembly's types on each lookup. Static so it is shared
+        /// across instances; only successful resolutions are cached (so a not-yet-loaded
+        /// assembly can still be found on a later call).
+        /// </summary>
+        private static readonly ConcurrentDictionary<string, string> _assemblyQualifiedNameCache = new();
+
         public IEnumerable<Type> FindClassesOfType<T>(bool onlyConcreteClasses = true)
         {
             return FindClassesOfType(typeof(T), onlyConcreteClasses);
@@ -24,34 +33,41 @@ namespace Rat.Domain.Infrastructure
 
         public virtual string GetAssemblyQualifiedNameByClass(string className, ClassType classType = ClassType.Class)
         {
-            var assemblies = GetAssemblies();
-            
-            foreach (var assembly in assemblies)
+            var cacheKey = $"{classType}:{className}";
+
+            if (_assemblyQualifiedNameCache.TryGetValue(cacheKey, out var cachedName))
             {
-                var assemblyTypes = assembly.GetTypes();
+                return cachedName;
+            }
 
-                switch (classType)
+            var resolvedName = ResolveAssemblyQualifiedNameByClass(className, classType);
+
+            if (!string.IsNullOrEmpty(resolvedName))
+            {
+                _assemblyQualifiedNameCache[cacheKey] = resolvedName;
+            }
+
+            return resolvedName;
+        }
+
+        /// <summary>
+        /// Scan all Rat assemblies for a matching type and return its assembly-qualified name.
+        /// </summary>
+        /// <param name="className">name of the class to find</param>
+        /// <param name="classType">kind of class, used to build the match</param>
+        /// <returns>assembly-qualified name, or empty string when not found</returns>
+        private string ResolveAssemblyQualifiedNameByClass(string className, ClassType classType)
+        {
+            foreach (var assembly in GetAssemblies())
+            {
+                var match = classType == ClassType.Class
+                    ? assembly.GetTypes().FirstOrDefault(x => x.Name == className)
+                    : assembly.GetTypes().FirstOrDefault(x => x.FullName != null && x.FullName.EndsWith($"{classType}.{className}"));
+
+                if (match != null)
                 {
-                    case ClassType.Class:
-                        {
-                            if (assemblyTypes.FirstOrDefault(x => x.Name == className) != null)
-                            {
-                                return assemblyTypes.FirstOrDefault(x => x.Name == className).AssemblyQualifiedName;
-                            }
-
-                            break;
-                        };
-                    default:
-                        {
-                            if (assemblyTypes.FirstOrDefault(x => x.FullName.EndsWith($"{classType}.{className}")) != null)
-                            {
-                                return assemblyTypes.FirstOrDefault(x => x.FullName.EndsWith($"{classType}.{className}")).AssemblyQualifiedName;
-                            }
-
-                            break;
-                        };
+                    return match.AssemblyQualifiedName;
                 }
-
             }
 
             return string.Empty;

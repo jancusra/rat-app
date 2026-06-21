@@ -95,13 +95,20 @@ namespace Rat.Api
             }
 
             app.UseHttpsRedirection();
-            app.UseMiddleware<TokenManagerMiddleware>();
+
+            // Sits near the top so it also wraps exceptions thrown by routing, authentication,
+            // authorization and our own TokenManagerMiddleware below.
             app.UseMiddleware<ErrorWrappingMiddleware>();
 
             app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            // Token deny-list (logout) check runs after authentication so it only inspects
+            // already-authenticated requests, and downstream of ErrorWrappingMiddleware so its
+            // own failures get wrapped instead of bubbling out raw.
+            app.UseMiddleware<TokenManagerMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

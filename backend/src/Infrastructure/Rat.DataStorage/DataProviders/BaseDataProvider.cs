@@ -74,15 +74,10 @@ namespace Rat.DataStorage.DataProviders
         /// <returns>instance of mapping schema</returns>
         private MappingSchema GetMappingSchema()
         {
-            if (Singleton<MappingSchema>.Instance is null)
+            return Singleton<MappingSchema>.GetOrCreate(() => new MappingSchema(LinqToDbDataProvider.Name)
             {
-                Singleton<MappingSchema>.Instance = new MappingSchema(LinqToDbDataProvider.Name)
-                {
-                    MetadataReader = new FluentMigratorMetadataProvider()
-                };
-            }
-            
-            return Singleton<MappingSchema>.Instance;
+                MetadataReader = new FluentMigratorMetadataProvider()
+            });
         }
 
         /// <summary>
