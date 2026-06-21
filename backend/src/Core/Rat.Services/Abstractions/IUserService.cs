@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Rat.Contracts.Models.User;
 using Rat.Domain.Entities;
+using Rat.Domain.Types;
 
 namespace Rat.Services
 {
@@ -26,6 +27,21 @@ namespace Rat.Services
         /// <param name="userId">user ID</param>
         /// <returns>bool result</returns>
         Task<bool> IsUserAdminAsync(int userId);
+
+        /// <summary>
+        /// Resolve the administration access level of the currently logged in user
+        /// (the most permissive access type among the user's active roles)
+        /// </summary>
+        /// <returns>administration access type (NoAccess when not authenticated or without roles)</returns>
+        Task<AccessType> GetCurrentUserAdministrationAccessAsync();
+
+        /// <summary>
+        /// Resolve the administration access level of a specific user
+        /// (the most permissive access type among the user's active roles)
+        /// </summary>
+        /// <param name="userId">user ID</param>
+        /// <returns>administration access type (NoAccess when the user has no active roles)</returns>
+        Task<AccessType> GetAdministrationAccessByUserIdAsync(int userId);
 
         /// <summary>
         /// Get current logged in user data

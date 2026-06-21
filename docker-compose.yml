@@ -48,6 +48,9 @@ services:
       ASPNETCORE_URLS: http://+:47050
       DB_PROVIDER: "sqlserver"
       DB_CONNECTION_STRING: "Data Source=${DB_HOST},${DB_PORT};Initial Catalog=${DB_NAME};User ID=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=true"
+      # JWT signing key from the central .env (overrides JWT:SecretKey in appsettings).
+      # ASP.NET Core maps the "__" separator to the "JWT:SecretKey" config path.
+      JWT__SecretKey: "${JWT_SECRET_KEY}"
     ports:
       - "47050:47050"
     healthcheck:

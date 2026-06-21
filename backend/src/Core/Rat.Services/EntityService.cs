@@ -32,16 +32,20 @@ namespace Rat.Services
 
         private readonly IReflectionCache _reflectionCache;
 
+        private readonly IUserService _userService;
+
         private const string MetadataMethodName = "GetMetadata";
 
         public EntityService(
             IAppTypeFinder appTypeFinder,
             IRepository repository,
-            IReflectionCache reflectionCache)
+            IReflectionCache reflectionCache,
+            IUserService userService)
         {
             _appTypeFinder = appTypeFinder;
             _repository = repository;
             _reflectionCache = reflectionCache;
+            _userService = userService;
         }
 
         public virtual async Task<IList<EntityEntryDto>> GetEntityAsync(string entityName, int? entityId)
@@ -52,6 +56,8 @@ namespace Rat.Services
             {
                 return new List<EntityEntryDto>();
             }
+
+            await EnsureAdministrationAccessAsync(entityType, AccessType.ReadOnly);
 
             if (!entityId.HasValue || entityId == default(int))
             {
@@ -73,7 +79,9 @@ namespace Rat.Services
                 return;
             }
 
-            int.TryParse(data[nameof(TableEntity.Id)].ToString(), out int entityId);
+            await EnsureAdministrationAccessAsync(entityType, AccessType.FullAccess);
+
+            int.TryParse(data[nameof(TableEntity.Id)]?.ToString(), out int entityId);
 
             var entity = await PrepareAndInsertOrUpdateEntityAsync(entityType, entityId, data);
             await SaveEntityAdditionsByMetadata(entityType, entity.Id, data);
@@ -83,9 +91,14 @@ namespace Rat.Services
         {
             var entityType = GetTableEntityTypeByName(entityName);
 
-            if (!skipCommonAccessAttribute && !entityType.HasSpecificAttribute<CommonAccessAttribute>())
+            if (!skipCommonAccessAttribute)
             {
-                return;
+                if (!entityType.HasSpecificAttribute<CommonAccessAttribute>())
+                {
+                    return;
+                }
+
+                await EnsureAdministrationAccessAsync(entityType, AccessType.FullAccess);
             }
 
             await GetResultFromInvokedMethodAsync(
@@ -104,6 +117,8 @@ namespace Rat.Services
             {
                 return new { columns = new List<ColumnMetadata>(), data = new List<IDictionary<string, object>>() };
             }
+
+            await EnsureAdministrationAccessAsync(entityType, AccessType.ReadOnly);
 
             var columns = await PrepareColumnsMetadataByEntityAsync(entityType);
             var tableData = await GetAllEntitiesAsync<dynamic>(entityType);
@@ -180,6 +195,24 @@ namespace Rat.Services
 
                 return entityType;
             });
+        }
+
+        /// <summary>
+        /// Ensure the current user has at least the required administration access for the entity.
+        /// Access types are ordered by permissiveness (FullAccess is the most permissive),
+        /// so a lower numeric value satisfies a higher required level.
+        /// </summary>
+        /// <param name="entityType">the type of entity being accessed</param>
+        /// <param name="requiredAccess">minimum access required for the operation</param>
+        /// <exception cref="AccessDeniedException">thrown when the current user lacks sufficient access</exception>
+        private async Task EnsureAdministrationAccessAsync(Type entityType, AccessType requiredAccess)
+        {
+            var currentAccess = await _userService.GetCurrentUserAdministrationAccessAsync();
+
+            if (currentAccess > requiredAccess)
+            {
+                throw new AccessDeniedException(entityType.Name);
+            }
         }
 
         /// <summary>

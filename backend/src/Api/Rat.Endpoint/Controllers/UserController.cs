@@ -40,13 +40,13 @@ namespace Rat.Endpoint.Controllers
         /// Register new user
         /// </summary>
         /// <param name="model">model: email and necessary passwords</param>
-        /// <returns>OK result</returns>
+        /// <returns>true when the user was created, false when registration did not happen</returns>
         [HttpPost]
         public virtual async Task<IActionResult> Register([FromBody]RegisterDto model)
         {
-            await _userService.RegisterNewUserAsync(model.Email, model.Password, model.PasswordVerify);
-            
-            return Ok();
+            var registered = await _userService.RegisterNewUserAsync(model.Email, model.Password, model.PasswordVerify);
+
+            return Ok(registered);
         }
     }
 }

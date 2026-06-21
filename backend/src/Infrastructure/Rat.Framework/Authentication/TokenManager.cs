@@ -40,7 +40,7 @@ namespace Rat.Framework.Authentication
             if (user != null)
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(_jwtOptions.Value.SecretKey);
+                var key = Encoding.UTF8.GetBytes(_jwtOptions.Value.SecretKey);
 
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
@@ -63,10 +63,7 @@ namespace Rat.Framework.Authentication
                 _httpContextAccessor.HttpContext.Response.Cookies.Append(
                     _jwtOptions.Value.AuthorizationCookieKey,
                     tokenString,
-                    new CookieOptions
-                    {
-                        HttpOnly = true
-                    });
+                    BuildAuthCookieOptions());
             }
             else
             {
@@ -98,7 +95,27 @@ namespace Rat.Framework.Authentication
                         TimeSpan.FromMinutes(_jwtOptions.Value.ExpiryMinutes)
                 });
 
-            _httpContextAccessor.HttpContext.Response.Cookies.Delete(_jwtOptions.Value.AuthorizationCookieKey);
+            _httpContextAccessor.HttpContext.Response.Cookies.Delete(
+                _jwtOptions.Value.AuthorizationCookieKey, BuildAuthCookieOptions());
+        }
+
+        /// <summary>
+        /// Build the cookie options for the auth cookie. Used for both writing (login)
+        /// and deleting (logout) so the attributes match — otherwise the browser keeps
+        /// the original cookie. Secure is forced on when SameSite=None (browser requirement).
+        /// </summary>
+        /// <returns>configured cookie options</returns>
+        private CookieOptions BuildAuthCookieOptions()
+        {
+            var sameSite = Enum.TryParse<SameSiteMode>(_jwtOptions.Value.CookieSameSite, true, out var mode)
+                ? mode : SameSiteMode.Lax;
+
+            return new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = _jwtOptions.Value.CookieSecure || sameSite == SameSiteMode.None,
+                SameSite = sameSite
+            };
         }
 
         private string GetCurrentToken()

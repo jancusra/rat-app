@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
+using LinqToDB;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Rat.Contracts.Models.User;
@@ -44,6 +47,36 @@ namespace Rat.Services
         public virtual async Task<bool> IsUserAdminAsync(int userId)
             => await _repository.Table<UserUserRoleMap>().FirstOrDefaultAsync(x => x.UserId == userId && x.UserRoleId == (int)RoleType.Administrators) != null;
 
+        public virtual async Task<AccessType> GetCurrentUserAdministrationAccessAsync()
+        {
+            var currentUser = GetCurrentUserClaims();
+
+            if (currentUser.Id <= default(int))
+            {
+                return AccessType.NoAccess;
+            }
+
+            return await GetAdministrationAccessByUserIdAsync(currentUser.Id);
+        }
+
+        public virtual async Task<AccessType> GetAdministrationAccessByUserIdAsync(int userId)
+        {
+            var accessTypeIds = await (
+                from map in _repository.Table<UserUserRoleMap>()
+                join role in _repository.Table<UserRole>() on map.UserRoleId equals role.Id
+                where map.UserId == userId && role.IsActive
+                select role.DefaultAccessTypeId).ToListAsync();
+
+            if (!accessTypeIds.Any())
+            {
+                return AccessType.NoAccess;
+            }
+
+            // access types are ordered by permissiveness (FullAccess = 10 < ReadOnly = 20 < NoAccess = 30),
+            // so the lowest value is the most permissive access the user has across all active roles
+            return (AccessType)accessTypeIds.Min();
+        }
+
         public virtual CurrentUserClaims GetCurrentUserClaims()
         {
             var identity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
@@ -69,10 +102,10 @@ namespace Rat.Services
 
                 if (userPassword != null)
                 {
-                    var hashToValidate = _hashingService.GetHashByType((HashType)userPassword.HashTypeId, 
+                    var hashToValidate = _hashingService.GetHashByType((HashType)userPassword.HashTypeId,
                         password, true, userPassword.PasswordSalt);
 
-                    if (hashToValidate == userPassword.PasswordHash)
+                    if (FixedTimeEquals(hashToValidate, userPassword.PasswordHash))
                     {
                         return user;
                     }
@@ -119,5 +152,23 @@ namespace Rat.Services
         /// <returns>the password belongs to the user</returns>
         private async Task<UserPassword> GetUserPasswordByUserIdAsync(int userId)
             => await _repository.Table<UserPassword>().FirstOrDefaultAsync(x => x.UserId == userId);
+
+        /// <summary>
+        /// Compare two hash strings in constant time to avoid leaking information through
+        /// timing differences (mitigates timing attacks on password verification).
+        /// </summary>
+        /// <param name="left">computed hash</param>
+        /// <param name="right">stored hash</param>
+        /// <returns>true when both hashes are equal</returns>
+        private static bool FixedTimeEquals(string left, string right)
+        {
+            if (left == null || right == null)
+            {
+                return false;
+            }
+
+            return CryptographicOperations.FixedTimeEquals(
+                Encoding.UTF8.GetBytes(left), Encoding.UTF8.GetBytes(right));
+        }
     }
 }
