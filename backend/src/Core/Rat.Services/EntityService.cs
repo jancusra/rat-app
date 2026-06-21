@@ -102,7 +102,7 @@ namespace Rat.Services
 
             if (!entityType.HasSpecificAttribute<CommonAccessAttribute>())
             {
-                return new { columns = new List<ColumnMetadata>(), data = new int[0] };
+                return new { columns = new List<ColumnMetadata>(), data = new List<IDictionary<string, object>>() };
             }
 
             var columns = await PrepareColumnsMetadataByEntityAsync(entityType);
@@ -120,10 +120,31 @@ namespace Rat.Services
                             var mappingsData = await GetAllEntitiesAsync<TableEntity>(mapEntityType);
                             var namedObjects = await GetAllNamedByEntityNameAsync(entryMetadata.Name);
 
+                            var primaryIdColumnName = $"{entityName}{nameof(TableEntity.Id)}";
+                            var objectIdColumnName = $"{entryMetadata.Name}{nameof(TableEntity.Id)}";
+
+                            // Group mapped object IDs by primary entity ID in a single pass to avoid scanning all mappings per row
+                            var mapObjectIdsByPrimaryId = new Dictionary<int, HashSet<int>>();
+
+                            foreach (var mappingEntry in mappingsData)
+                            {
+                                var primaryId = GetIntValueByPropertyName(mappingEntry, primaryIdColumnName);
+                                var objectId = GetIntValueByPropertyName(mappingEntry, objectIdColumnName);
+
+                                if (!mapObjectIdsByPrimaryId.TryGetValue(primaryId, out var objectIds))
+                                {
+                                    objectIds = new HashSet<int>();
+                                    mapObjectIdsByPrimaryId[primaryId] = objectIds;
+                                }
+
+                                objectIds.Add(objectId);
+                            }
+
                             foreach (var tableEntry in tableDictData)
                             {
-                                var mapObjectIds = await GetMapObjectIdsByEntityNamesAndPrimaryEntityIdAsync(
-                                    entityName, entryMetadata.Name, (int)tableEntry[nameof(TableEntity.Id).FirstCharToLowerCase()], mappingsData);
+                                var primaryId = (int)tableEntry[nameof(TableEntity.Id).FirstCharToLowerCase()];
+                                var mapObjectIds = mapObjectIdsByPrimaryId.TryGetValue(primaryId, out var ids)
+                                    ? ids : new HashSet<int>();
 
                                 tableEntry.Add(entryMetadata.Name.FirstCharToLowerCase(),
                                     namedObjects.Where(x => mapObjectIds.Contains(x.Key)).Select(y => y.Value).ToList());
@@ -275,15 +296,61 @@ namespace Rat.Services
 
             foreach (var entityEntry in data)
             {
-                if (entityEntry.Key != nameof(TableEntity.Id))
+                if (entityEntry.Key == nameof(TableEntity.Id))
                 {
-                    var propertyInfo = entityProperties.FirstOrDefault(x => x.Name == entityEntry.Key);
-
-                    if (propertyInfo != null)
-                    {
-                        propertyInfo.SetValue(entity, entityEntry.Value, null);
-                    }
+                    continue;
                 }
+
+                var propertyInfo = entityProperties.FirstOrDefault(x => x.Name == entityEntry.Key);
+
+                if (propertyInfo != null && propertyInfo.CanWrite
+                    && TryConvertToPropertyType(entityEntry.Value, propertyInfo.PropertyType, out var convertedValue))
+                {
+                    propertyInfo.SetValue(entity, convertedValue, null);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Convert a raw data value (usually deserialized from request data) to a property type.
+        /// Handles null, Nullable, enum and primitive conversions; returns false for values that
+        /// cannot be converted so a single bad field does not break the whole save.
+        /// </summary>
+        /// <param name="value">raw value to convert</param>
+        /// <param name="targetType">the property type to convert to</param>
+        /// <param name="converted">the converted value when conversion succeeds</param>
+        /// <returns>true when the value can be assigned to the property</returns>
+        private bool TryConvertToPropertyType(object value, Type targetType, out object converted)
+        {
+            converted = null;
+            var underlyingType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+            if (value == null)
+            {
+                // only reference types and Nullable<T> can hold null; skip non-nullable value types
+                return !targetType.IsValueType || Nullable.GetUnderlyingType(targetType) != null;
+            }
+
+            if (underlyingType.IsInstanceOfType(value))
+            {
+                converted = value;
+                return true;
+            }
+
+            try
+            {
+                converted = underlyingType.IsEnum
+                    ? (value is string enumName
+                        ? Enum.Parse(underlyingType, enumName, true)
+                        : Enum.ToObject(underlyingType, Convert.ToInt64(value)))
+                    : Convert.ChangeType(value, underlyingType);
+
+                return true;
+            }
+            catch (Exception ex) when (ex is InvalidCastException || ex is FormatException
+                || ex is OverflowException || ex is ArgumentException)
+            {
+                return false;
             }
         }
 
@@ -303,7 +370,9 @@ namespace Rat.Services
                 {
                     case CustomEntityEntryType.MappedMultiSelect:
                         {
-                            var newObjectIds = ((IList<object>)data[entryMetadata.Name]).Cast<int>().ToList();
+                            var newObjectIds = data.TryGetValue(entryMetadata.Name, out var rawObjectIds) && rawObjectIds is IList<object> rawObjectIdList
+                                ? rawObjectIdList.Select(Convert.ToInt32).ToList()
+                                : new List<int>();
                             var objectIdColumnName = $"{entryMetadata.Name}{nameof(TableEntity.Id)}";
                             var entityMaps = await GetMapsByEntityNamesAndPrimaryEntityIdAsync(
                                     entityType.Name, entryMetadata.Name, entityId);
@@ -396,18 +465,22 @@ namespace Rat.Services
                     continue;
                 }
 
-                var entityValue = entity != null ? entityProperty.GetValue(entity, null) : null;
+                var entityValue = entityProperty.GetValue(entity, null);
                 var entityEntryType = entityProperty.PropertyType.Name;
 
                 if (alteredEntry != null && !string.IsNullOrEmpty(alteredEntry.EntryType))
                 {
                     entityEntryType = alteredEntry.EntryType;
 
-                    if (entityEntryType == CustomEntityEntryType.Enum.ToString()
-                        && !alteredEntry.SelectOptions.ContainsKey((int)entityValue))
+                    if (entityEntryType == CustomEntityEntryType.Enum.ToString())
                     {
-                        var firstEnumEntry = alteredEntry.SelectOptions.FirstOrDefault();
-                        entityValue = firstEnumEntry.Key;
+                        var enumValue = entityValue != null ? Convert.ToInt32(entityValue) : default(int);
+
+                        if (!alteredEntry.SelectOptions.ContainsKey(enumValue))
+                        {
+                            var firstEnumEntry = alteredEntry.SelectOptions.FirstOrDefault();
+                            entityValue = firstEnumEntry.Key;
+                        }
                     }
                 }
 
@@ -437,7 +510,8 @@ namespace Rat.Services
                                 SelectOptions = await GetAllNamedByEntityNameAsync(entryMetadata.Name)
                             };
 
-                            entityEntries.Insert(entryMetadata.Order, entityEntryDto);
+                            var index = Math.Min(entryMetadata.Order, entityEntries.Count);
+                            entityEntries.Insert(index, entityEntryDto);
                             break;
                         }
                     default:
@@ -624,7 +698,8 @@ namespace Rat.Services
                         break;
                 }
 
-                columns.Insert(alteredData != null ? alteredData.Order : entryMetadata.Order, expandingColumn);
+                var index = Math.Min(alteredData != null ? alteredData.Order : entryMetadata.Order, columns.Count);
+                columns.Insert(index, expandingColumn);
             }
 
             foreach (var columnMetadata in columnsMetadata)
