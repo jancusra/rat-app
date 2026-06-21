@@ -35,6 +35,13 @@ namespace Rat.Framework.Authentication
                     "or the JWT:SecretKey configuration value.");
             }
 
+            if (jwtOptions.ExpiryMinutes <= 0)
+            {
+                throw new InvalidOperationException(
+                    $"JWT:ExpiryMinutes is missing or invalid ('{jwtOptions.ExpiryMinutes}'); it must be greater than 0, " +
+                    "otherwise tokens expire immediately and every login fails.");
+            }
+
             var issuerKey = Encoding.UTF8.GetBytes(jwtOptions.SecretKey);
 
             services.AddAuthentication(x =>

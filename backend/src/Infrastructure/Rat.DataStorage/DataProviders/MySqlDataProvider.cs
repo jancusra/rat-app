@@ -17,7 +17,7 @@ namespace Rat.DataStorage.DataProviders
         protected override DbConnection GetInternalDbConnection(string connectionString)
         {
             if (string.IsNullOrEmpty(connectionString))
-                throw new ArgumentException(nameof(connectionString));
+                throw new ArgumentException("A connection string must be supplied.", nameof(connectionString));
 
             return new MySqlConnection(connectionString);
         }

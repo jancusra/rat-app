@@ -159,7 +159,7 @@ namespace Rat.Domain.Infrastructure
         protected virtual IList<Assembly> GetAssemblies()
         {
             return AppDomain.CurrentDomain.GetAssemblies()
-                .Where(x => x.FullName.StartsWith(RatAssembliesShouldStartsWith)).ToList();
+                .Where(x => x.FullName != null && x.FullName.StartsWith(RatAssembliesShouldStartsWith)).ToList();
         }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace Rat.Domain.Infrastructure
 
             foreach (var assembly in loadedAssemblies)
             {
-                if (assembly.FullName.StartsWith(RatAssembliesShouldStartsWith)
+                if (assembly.FullName != null && assembly.FullName.StartsWith(RatAssembliesShouldStartsWith)
                     && resultAssemblies.FirstOrDefault(x => x.FullName == assembly.FullName) == null)
                 {
                     resultAssemblies.Add(assembly);

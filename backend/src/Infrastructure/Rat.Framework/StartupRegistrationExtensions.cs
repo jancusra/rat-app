@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Rat.Domain.Options;
-using AppCorsOptions = Rat.Domain.Options.CorsOptions;
+using Rat.Domain.Types;
 
 namespace Rat.Framework
 {
@@ -25,6 +25,14 @@ namespace Rat.Framework
             var usersSection = configuration.GetSection("User");
             var usersOptions = new UserOptions();
             usersSection.Bind(usersOptions);
+
+            if (!Enum.IsDefined(typeof(HashType), usersOptions.PasswordHashing))
+            {
+                throw new InvalidOperationException(
+                    $"User:PasswordHashing is missing or invalid ('{usersOptions.PasswordHashing}'). " +
+                    $"Set it to a defined {nameof(HashType)} value (e.g. Pbkdf2SHA512).");
+            }
+
             services.Configure<UserOptions>(usersSection);
         }
 
@@ -40,7 +48,7 @@ namespace Rat.Framework
         public static void AddApplicationCors(this IServiceCollection services, IConfiguration configuration)
         {
             var corsSection = configuration.GetSection("Cors");
-            var corsOptions = new AppCorsOptions();
+            var corsOptions = new CorsOptions();
             corsSection.Bind(corsOptions);
 
             var origins = SplitOrigins(corsOptions.AllowedOrigins);

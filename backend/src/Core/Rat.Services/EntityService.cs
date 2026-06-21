@@ -83,8 +83,13 @@ namespace Rat.Services
 
             int.TryParse(data[nameof(TableEntity.Id)]?.ToString(), out int entityId);
 
-            var entity = await PrepareAndInsertOrUpdateEntityAsync(entityType, entityId, data);
-            await SaveEntityAdditionsByMetadata(entityType, entity.Id, data);
+            // Entity and its many-to-many mappings are saved together so a failure while writing
+            // the mappings cannot leave the entity persisted with a half-applied mapping set.
+            await _repository.ExecuteInTransactionAsync(async () =>
+            {
+                var entity = await PrepareAndInsertOrUpdateEntityAsync(entityType, entityId, data);
+                await SaveEntityAdditionsByMetadata(entityType, entity.Id, data);
+            });
         }
 
         public virtual async Task DeleteEntityAsync(string entityName, int entityId, bool skipCommonAccessAttribute = false)

@@ -26,8 +26,9 @@ namespace Rat.Services
 
         public virtual async Task<string> GetLocaleAsync(int languageId, string localName)
         {
+            var langId = await GetLanguageIdAsync(languageId);
             var localeValue = await _repository.Table<Localization>()
-                .FirstOrDefaultAsync(x => x.LanguageId == languageId && x.Name == localName);
+                .FirstOrDefaultAsync(x => x.LanguageId == langId && x.Name == localName);
 
             if (localeValue == null)
             {

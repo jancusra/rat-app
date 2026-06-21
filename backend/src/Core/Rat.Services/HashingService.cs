@@ -47,7 +47,11 @@ namespace Rat.Services
                 inputString = $"{inputString}-{salt}";
             }
 
-            var hashAlgorithm = (HashAlgorithm)CryptoConfig.CreateFromName(hashType.ToString());
+            using var hashAlgorithm = CryptoConfig.CreateFromName(hashType.ToString()) as HashAlgorithm;
+
+            if (hashAlgorithm == null)
+                throw new ArgumentException($"Unsupported hash algorithm: '{hashType}'.", nameof(hashType));
+
             var hashBytes = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
 
             return Convert.ToBase64String(hashBytes);

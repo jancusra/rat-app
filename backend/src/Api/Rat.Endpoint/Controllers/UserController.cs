@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Rat.Contracts.Models.User;
+using Rat.Domain.Exceptions;
 using Rat.Services;
 
 namespace Rat.Endpoint.Controllers
@@ -27,6 +28,7 @@ namespace Rat.Endpoint.Controllers
         /// Retrieving data about the currently logged in user
         /// </summary>
         /// <returns>logged in user data</returns>
+        [HttpGet]
         public virtual async Task<IActionResult> GetCurrentUserData()
         {
             var userClaims = _userService.GetCurrentUserClaims();
@@ -48,6 +50,12 @@ namespace Rat.Endpoint.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
+            if (model == null || string.IsNullOrEmpty(model.Email)
+                || string.IsNullOrEmpty(model.Password) || string.IsNullOrEmpty(model.PasswordVerify))
+            {
+                throw new InvalidInputRequestDataException();
+            }
+
             var registered = await _userService.RegisterNewUserAsync(model.Email, model.Password, model.PasswordVerify);
 
             return Ok(registered);

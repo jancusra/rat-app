@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
-using FluentMigrator.Expressions;
 using LinqToDB.Mapping;
 using LinqToDB.Metadata;
 using Rat.Domain;
@@ -136,6 +135,5 @@ namespace Rat.DataStorage.Mapping
         }
 
         protected static ConcurrentDictionary<(Type, MemberInfo), Attribute> Types { get; } = new ConcurrentDictionary<(Type, MemberInfo), Attribute>();
-        protected static ConcurrentDictionary<Type, CreateTableExpression> Expressions { get; } = new ConcurrentDictionary<Type, CreateTableExpression>();
     }
 }
