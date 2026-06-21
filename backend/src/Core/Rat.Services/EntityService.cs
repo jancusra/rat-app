@@ -16,7 +16,13 @@ using Rat.Domain.Types;
 namespace Rat.Services
 {
     /// <summary>
-    /// Methods for various operations with common entities
+    /// Generic service for working with arbitrary table entities resolved by name at runtime.
+    /// Provides metadata-driven CRUD and table projection (read, save, delete, list) without
+    /// knowing the concrete entity type at compile time: the CLR type is looked up by name,
+    /// repository methods are dispatched via reflection, and DTO/column metadata is built from
+    /// the entity's properties combined with code-configured entry metadata. Also handles
+    /// many-to-many mappings (MappedMultiSelect) through convention-named mapping tables.
+    /// Structural reflection lookups (types, methods, properties) are cached for performance.
     /// </summary>
     public partial class EntityService : IEntityService
     {
@@ -24,12 +30,18 @@ namespace Rat.Services
 
         private readonly IRepository _repository;
 
+        private readonly IReflectionCache _reflectionCache;
+
+        private const string MetadataMethodName = "GetMetadata";
+
         public EntityService(
             IAppTypeFinder appTypeFinder,
-            IRepository repository)
+            IRepository repository,
+            IReflectionCache reflectionCache)
         {
             _appTypeFinder = appTypeFinder;
             _repository = repository;
+            _reflectionCache = reflectionCache;
         }
 
         public virtual async Task<IList<EntityEntryDto>> GetEntityAsync(string entityName, int? entityId)
@@ -111,14 +123,14 @@ namespace Rat.Services
                             foreach (var tableEntry in tableDictData)
                             {
                                 var mapObjectIds = await GetMapObjectIdsByEntityNamesAndPrimaryEntityIdAsync(
-                                    entityName, entryMetadata.Name, (int)tableEntry[nameof(TableEntity.Id).ToLower()], mappingsData);
+                                    entityName, entryMetadata.Name, (int)tableEntry[nameof(TableEntity.Id).FirstCharToLowerCase()], mappingsData);
 
-                                tableEntry.Add(entryMetadata.Name.FirstCharToLowerCase(), 
+                                tableEntry.Add(entryMetadata.Name.FirstCharToLowerCase(),
                                     namedObjects.Where(x => mapObjectIds.Contains(x.Key)).Select(y => y.Value).ToList());
                             }
 
                             break;
-                        };
+                        }
                     default:
                         break;
                 }
@@ -129,14 +141,24 @@ namespace Rat.Services
 
         public virtual Type GetTableEntityTypeByName(string entityName)
         {
-            var typeEntityData = _appTypeFinder.GetAssemblyQualifiedNameByClass(entityName, ClassType.Entities);
-
-            if (string.IsNullOrEmpty(typeEntityData))
+            return _reflectionCache.GetOrAddEntityType(entityName, name =>
             {
-                throw new NonExistingEntityException(entityName);
-            }
+                var typeEntityData = _appTypeFinder.GetAssemblyQualifiedNameByClass(name, ClassType.Entities);
 
-            return Type.GetType(typeEntityData);
+                if (string.IsNullOrEmpty(typeEntityData))
+                {
+                    throw new NonExistingEntityException(name);
+                }
+
+                var entityType = Type.GetType(typeEntityData);
+
+                if (entityType == null)
+                {
+                    throw new NonExistingEntityException(name);
+                }
+
+                return entityType;
+            });
         }
 
         /// <summary>
@@ -155,29 +177,28 @@ namespace Rat.Services
             object[] invokeParameters,
             Type methodGenericType = null)
         {
-            var baseMethod = typeOfSource.GetMethod(methodName);
-            MethodInfo methodToInvoke;
-
-            if (methodGenericType != null)
+            var methodToInvoke = _reflectionCache.GetOrAddMethod((typeOfSource, methodName, methodGenericType), key =>
             {
-                methodToInvoke = baseMethod.MakeGenericMethod(methodGenericType);
-            }
-            else
-            {
-                methodToInvoke = baseMethod;
-            }
+                var baseMethod = key.Source.GetMethod(key.Method);
+                return key.Generic != null ? baseMethod.MakeGenericMethod(key.Generic) : baseMethod;
+            });
 
-            dynamic awaitableData = methodToInvoke.Invoke(sourceForInvoke, invokeParameters);
-            await awaitableData;
+            var invocationResult = methodToInvoke.Invoke(sourceForInvoke, invokeParameters);
 
-            if (methodToInvoke.ReturnType == typeof(void) || methodToInvoke.ReturnType == typeof(Task))
+            if (methodToInvoke.ReturnType == typeof(void))
             {
                 return null;
             }
-            else
+
+            dynamic awaitableData = invocationResult;
+
+            if (methodToInvoke.ReturnType == typeof(Task))
             {
-                return awaitableData.GetAwaiter().GetResult();
+                await awaitableData;
+                return null;
             }
+
+            return await awaitableData;
         }
 
         /// <summary>
@@ -226,6 +247,11 @@ namespace Rat.Services
                 await GetEntityByIdAsync(entityType, entityId) :
                 Activator.CreateInstance(entityType) as TableEntity;
 
+            if (entity == null)
+            {
+                throw new NonExistingEntityEntryException(entityType.Name);
+            }
+
             SetEntityPropertiesByData(entity, data);
 
             await GetResultFromInvokedMethodAsync(
@@ -245,7 +271,7 @@ namespace Rat.Services
         /// <param name="data">entity data to set</param>
         private void SetEntityPropertiesByData(TableEntity entity, Dictionary<string, object> data)
         {
-            var entityProperties = entity.GetType().GetProperties();
+            var entityProperties = GetCachedProperties(entity.GetType());
 
             foreach (var entityEntry in data)
             {
@@ -298,7 +324,7 @@ namespace Rat.Services
                             var objectIdsToCreate = newObjectIds.Except(savedObjectIds).ToList();
                             var mappingTableName = GetMappingTableName(entityType.Name, entryMetadata.Name);
 
-                            if (objectIdsToCreate.Count() > default(int))
+                            if (objectIdsToCreate.Count > default(int))
                             {
                                 var mapEntityType = GetTableEntityTypeByName(mappingTableName);
 
@@ -320,7 +346,7 @@ namespace Rat.Services
                             }
 
                             break;
-                        };
+                        }
                     default:
                         break;
                 }
@@ -337,12 +363,12 @@ namespace Rat.Services
         {
             var entriesMetadata = GetMetadataByEntityAndClassType<EntityEntryDto>(entityType, ClassType.CommonEntityEntries);
             var expandingMetadata = GetExpandingMetadataByEntityType(entityType, entriesMetadata);
-            var entityProperties = entityType.GetProperties();
+            var entityProperties = GetCachedProperties(entityType);
             var entityEntries = new List<EntityEntryDto>();
 
             if (entity != null && typeof(ICanBeSystem).IsAssignableFrom(entityType))
             {
-                var systemEntityProperty = entityType.GetProperties().FirstOrDefault(x => x.Name == nameof(ICanBeSystem.IsSystemEntry));
+                var systemEntityProperty = entityProperties.FirstOrDefault(x => x.Name == nameof(ICanBeSystem.IsSystemEntry));
 
                 if (systemEntityProperty != null && (bool)systemEntityProperty.GetValue(entity, null))
                 {
@@ -377,7 +403,7 @@ namespace Rat.Services
                 {
                     entityEntryType = alteredEntry.EntryType;
 
-                    if (entityEntryType == CustomEntityEntryType.Enum.ToString() 
+                    if (entityEntryType == CustomEntityEntryType.Enum.ToString()
                         && !alteredEntry.SelectOptions.ContainsKey((int)entityValue))
                     {
                         var firstEnumEntry = alteredEntry.SelectOptions.FirstOrDefault();
@@ -390,8 +416,8 @@ namespace Rat.Services
                     Name = entityProperty.Name,
                     Value = entityValue,
                     EntryType = entityEntryType,
-                    Hidden = alteredEntry != null ? alteredEntry.Hidden : false,
-                    SelectOptions = alteredEntry != null ? alteredEntry.SelectOptions : null
+                    Hidden = alteredEntry?.Hidden ?? false,
+                    SelectOptions = alteredEntry?.SelectOptions
                 });
             }
 
@@ -405,7 +431,7 @@ namespace Rat.Services
                             {
                                 Name = entryMetadata.Name,
                                 EntryType = entryMetadata.EntryType,
-                                Value = entity.Id > default(int) 
+                                Value = entity.Id > default(int)
                                     ? await GetMapObjectIdsByEntityNamesAndPrimaryEntityIdAsync(entityType.Name, entryMetadata.Name, entity.Id)
                                     : new List<int>(),
                                 SelectOptions = await GetAllNamedByEntityNameAsync(entryMetadata.Name)
@@ -413,7 +439,7 @@ namespace Rat.Services
 
                             entityEntries.Insert(entryMetadata.Order, entityEntryDto);
                             break;
-                        };
+                        }
                     default:
                         break;
                 }
@@ -429,7 +455,7 @@ namespace Rat.Services
         /// <param name="entriesMetadata">entity entries metadata</param>
         /// <returns>extended DTO properties</returns>
         private IList<EntityEntryDto> GetExpandingMetadataByEntityType(
-            Type entityType, 
+            Type entityType,
             IList<EntityEntryDto> entriesMetadata = null)
         {
             if (entriesMetadata is null)
@@ -437,7 +463,7 @@ namespace Rat.Services
                 entriesMetadata = GetMetadataByEntityAndClassType<EntityEntryDto>(entityType, ClassType.CommonEntityEntries);
             }
 
-            var entityPropNames = entityType.GetProperties().Select(x => x.Name).ToList();
+            var entityPropNames = GetCachedProperties(entityType).Select(x => x.Name).ToList();
             return entriesMetadata.Where(x => !entityPropNames.Contains(x.Name)).ToList();
         }
 
@@ -541,11 +567,11 @@ namespace Rat.Services
             var expandingMetadata = GetExpandingMetadataByEntityType(entityType, entriesMetadata);
             var columns = new List<ColumnMetadata>();
 
-            foreach (var entityProperty in entityType.GetProperties())
+            foreach (var entityProperty in GetCachedProperties(entityType))
             {
                 var alteredEntry = entriesMetadata.FirstOrDefault(x => x.Name == entityProperty.Name);
                 var alteredColumn = columnsMetadata.FirstOrDefault(x => x.Name == entityProperty.Name);
-                var alteredData = alteredColumn != null ? alteredColumn : alteredEntry as BaseEntryDto;
+                var alteredData = alteredColumn ?? alteredEntry as BaseEntryDto;
 
                 if (alteredData != null && alteredData.Excluded)
                 {
@@ -557,19 +583,21 @@ namespace Rat.Services
                     continue;
                 }
 
-                columns.Add(new ColumnMetadata {
+                columns.Add(new ColumnMetadata
+                {
                     Name = entityProperty.Name,
                     EntryType = alteredData != null && !string.IsNullOrEmpty(alteredData.EntryType)
                         ? alteredData.EntryType : entityProperty.PropertyType.Name,
-                    Hidden = alteredData != null ? alteredData.Hidden : false,
-                    SelectOptions = alteredData != null ? alteredData.SelectOptions : null
+                    Hidden = alteredData?.Hidden ?? false,
+                    SelectOptions = alteredData?.SelectOptions
                 });
             }
 
             foreach (var entryMetadata in expandingMetadata)
             {
                 var alteredColumn = columnsMetadata.FirstOrDefault(x => x.Name == entryMetadata.Name);
-                var alteredData = alteredColumn != null ? alteredColumn : entriesMetadata as BaseEntryDto;
+                var alteredEntry = entriesMetadata.FirstOrDefault(x => x.Name == entryMetadata.Name);
+                var alteredData = alteredColumn ?? alteredEntry as BaseEntryDto;
 
                 if (alteredData != null && alteredData.Excluded)
                 {
@@ -581,8 +609,8 @@ namespace Rat.Services
                     Name = entryMetadata.Name,
                     EntryType = alteredData != null && !string.IsNullOrEmpty(alteredData.EntryType)
                         ? alteredData.EntryType : entryMetadata.EntryType,
-                    Hidden = alteredData != null ? alteredData.Hidden : false,
-                    SelectOptions = alteredData != null ? alteredData.SelectOptions : null
+                    Hidden = alteredData?.Hidden ?? false,
+                    SelectOptions = alteredData?.SelectOptions
                 };
 
                 switch (entryMetadata.EntryType.ToEnum<CustomEntityEntryType>())
@@ -591,7 +619,7 @@ namespace Rat.Services
                         {
                             expandingColumn.SelectOptions = await GetAllNamedByEntityNameAsync(entryMetadata.Name);
                             break;
-                        };
+                        }
                     default:
                         break;
                 }
@@ -622,7 +650,17 @@ namespace Rat.Services
         private bool IsEntityPropertyDerivedByEntityType<T>(Type entityType, PropertyInfo entityProperty)
         {
             return typeof(T).IsAssignableFrom(entityType)
-                && typeof(T).GetProperties().FirstOrDefault(x => x.Name == entityProperty.Name) != null;
+                && GetCachedProperties(typeof(T)).FirstOrDefault(x => x.Name == entityProperty.Name) != null;
+        }
+
+        /// <summary>
+        /// Get (and cache) the public properties of a type
+        /// </summary>
+        /// <param name="type">the type to reflect</param>
+        /// <returns>the type's public properties</returns>
+        private PropertyInfo[] GetCachedProperties(Type type)
+        {
+            return _reflectionCache.GetOrAddProperties(type, t => t.GetProperties());
         }
 
         /// <summary>
@@ -634,11 +672,20 @@ namespace Rat.Services
         /// <returns>final list of metadata</returns>
         private IList<T> GetMetadataByEntityAndClassType<T>(Type entityType, ClassType classType) where T : BaseEntryDto
         {
-            var metadataType = _appTypeFinder.GetAssemblyQualifiedNameByClass(entityType.Name, classType);
-
-            if (!string.IsNullOrEmpty(metadataType))
+            var metadataMethod = _reflectionCache.GetOrAddMetadataMethod((entityType.Name, classType), key =>
             {
-                var metadataMethod = Type.GetType(metadataType).GetMethod("GetMetadata");
+                var metadataType = _appTypeFinder.GetAssemblyQualifiedNameByClass(key.EntityName, key.ClassType);
+
+                if (string.IsNullOrEmpty(metadataType))
+                {
+                    return null;
+                }
+
+                return Type.GetType(metadataType)?.GetMethod(MetadataMethodName);
+            });
+
+            if (metadataMethod != null)
+            {
                 return (List<T>)metadataMethod.Invoke(null, null);
             }
 

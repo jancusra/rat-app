@@ -41,6 +41,7 @@ namespace Rat.Api
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddSingleton<IAppTypeFinder, AppTypeFinder>();
+            services.AddSingleton<IReflectionCache, ReflectionCache>();
 
             ConfigureServicesByLibraries(services);
 

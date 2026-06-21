@@ -29,7 +29,7 @@ namespace Rat.Endpoint.Controllers
         /// <param name="model">model: ID (if null will return default entity), entity name</param>
         /// <returns>final entity result</returns>
         [HttpPost]
-        public virtual async Task<IActionResult> GetEntity([FromBody]GetEntityDto model)
+        public virtual async Task<IActionResult> GetEntity([FromBody] GetEntityDto model)
         {
             var data = await _entityService.GetEntityAsync(model.EntityName, model.Id);
             return Ok(data);
@@ -41,7 +41,7 @@ namespace Rat.Endpoint.Controllers
         /// <param name="model">model: entity name, language and entity data</param>
         /// <returns>validation errors or OK result</returns>
         [HttpPost]
-        public virtual async Task<IActionResult> SaveEntity([FromBody]SaveEntityDto model)
+        public virtual async Task<IActionResult> SaveEntity([FromBody] SaveEntityDto model)
         {
             var validationResult = await _entityValidationService.ValidateCommonEntityAsync(
                 model.EntityName, model.Data, model.LanguageId);
@@ -63,7 +63,7 @@ namespace Rat.Endpoint.Controllers
         /// <param name="model">model: entity ID and name</param>
         /// <returns>OK result</returns>
         [HttpPost]
-        public virtual async Task<IActionResult> DeleteEntity([FromBody]DeleteEntityDto model)
+        public virtual async Task<IActionResult> DeleteEntity([FromBody] DeleteEntityDto model)
         {
             await _entityService.DeleteEntityAsync(model.EntityName, model.Id);
             return Ok(true);
@@ -76,7 +76,7 @@ namespace Rat.Endpoint.Controllers
         /// <param name="model">model: entity name</param>
         /// <returns>OK result</returns>
         [HttpPost]
-        public virtual async Task<IActionResult> GetAllToTable([FromBody]GetAllDto model)
+        public virtual async Task<IActionResult> GetAllToTable([FromBody] GetAllDto model)
         {
             var data = await _entityService.GetAllToTableAsync(model.EntityName);
             return Ok(data);
