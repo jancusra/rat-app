@@ -109,6 +109,11 @@ namespace Rat.DataStorage.DataProviders
             // Not thread-safe by design: the provider is scoped per request and calls run
             // sequentially, so this lazy init is safe. Do NOT parallelize repository calls
             // (e.g. Task.WhenAll) sharing this provider — the DataContext isn't thread-safe.
+            // NOTE: reads go through this DataContext (its own connection) and do NOT join the
+            // ambient transaction from ExecuteInTransactionAsync — only writes do. So a query
+            // run inside a transaction won't see that transaction's uncommitted changes and may
+            // even deadlock under stricter isolation. Don't rely on read-after-write within a
+            // transaction until GetTable also honours _transactionConnection.
             _queryDataContext ??= new DataContext(LinqToDbDataProvider, GetCurrentConnectionString())
             {
                 MappingSchema = GetMappingSchema()

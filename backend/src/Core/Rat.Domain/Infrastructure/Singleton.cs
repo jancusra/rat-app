@@ -12,10 +12,10 @@ namespace Rat.Domain.Infrastructure
     /// Direct access through <see cref="Instance"/> is not synchronized. To create the
     /// instance lazily from multiple threads without racing, use <see cref="GetOrCreate"/>.
     /// </remarks>
-    public sealed class Singleton<T>
+    public sealed class Singleton<T> where T : class
     {
         private static readonly object _lock = new object();
-        private static T instance;
+        private static volatile T instance;
 
         /// <summary>
         /// The singleton instance for the specified type T. Only one instance (at the time) of this object for each type of T.

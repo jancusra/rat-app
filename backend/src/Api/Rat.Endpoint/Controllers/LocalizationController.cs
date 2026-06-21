@@ -24,8 +24,11 @@ namespace Rat.Endpoint.Controllers
         /// <returns>dictionary of all filtered localizations</returns>
         public virtual async Task<IActionResult> GetByLanguageId(int languageId)
         {
+            // Group by name so duplicate localization names for the same language don't throw;
+            // the first value wins.
             var locales = (await _localizationService.GetByLanguageIdAsync(languageId))
-                .ToDictionary(k => k.Name, v => v.Value);
+                .GroupBy(x => x.Name)
+                .ToDictionary(g => g.Key, g => g.First().Value);
 
             return Ok(locales);
         }

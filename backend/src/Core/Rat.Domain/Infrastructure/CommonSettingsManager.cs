@@ -23,7 +23,7 @@ namespace Rat.Domain.Infrastructure
         /// <typeparam name="T">type of the setting model</typeparam>
         /// <param name="settingsJsonFilePath">JSON file server location</param>
         /// <returns>settings model as singleton</returns>
-        public static T GetSettings<T>(string settingsJsonFilePath) where T : new()
+        public static T GetSettings<T>(string settingsJsonFilePath) where T : class, new()
         {
             if (Singleton<T>.Instance != null)
             {

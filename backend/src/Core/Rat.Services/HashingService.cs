@@ -13,12 +13,7 @@ namespace Rat.Services
     {
         public virtual string GenerateSalt(int size = 128)
         {
-            byte[] salt = new byte[size / 8];
-
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetNonZeroBytes(salt);
-            }
+            byte[] salt = RandomNumberGenerator.GetBytes(size / 8);
 
             return Convert.ToBase64String(salt);
         }
