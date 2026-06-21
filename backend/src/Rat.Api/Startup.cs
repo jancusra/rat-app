@@ -62,6 +62,7 @@ namespace Rat.Api
             services.AddControllers();
 
             services.AddJwtBearerAuthentication(_configuration);
+            services.AddApplicationCors(_configuration);
             services.AddApplicationOptions(_configuration);
         }
 
@@ -101,6 +102,11 @@ namespace Rat.Api
             app.UseMiddleware<ErrorWrappingMiddleware>();
 
             app.UseRouting();
+
+            // CORS must sit between routing and authentication so pre-flight
+            // OPTIONS requests are answered and the auth cookie is allowed
+            // cross-origin (no-op unless Cors:AllowedOrigins is configured).
+            app.UseApplicationCors(_configuration);
 
             app.UseAuthentication();
             app.UseAuthorization();
