@@ -36,14 +36,24 @@ namespace Rat.Services
         /// </summary>
         /// <param name="allMenuItems">flat list of all menu items</param>
         /// <param name="parentMenuItemId">parent ID to build children for (0 = root)</param>
+        /// <param name="visitedParents">parent IDs already expanded, guards against cyclic data</param>
         /// <returns>ordered list of menu items with their child sub-trees populated</returns>
-        private IList<MenuItemDto> BuildMenuTree(IList<MenuItem> allMenuItems, int parentMenuItemId)
+        private IList<MenuItemDto> BuildMenuTree(
+            IList<MenuItem> allMenuItems, int parentMenuItemId, HashSet<int> visitedParents = null)
         {
+            visitedParents ??= new HashSet<int>();
+
+            // already expanded this parent -> cyclic data, stop instead of recursing forever
+            if (!visitedParents.Add(parentMenuItemId))
+            {
+                return new List<MenuItemDto>();
+            }
+
             var menuItems = GetChildMenuItemsByParentId(allMenuItems, parentMenuItemId);
 
             foreach (var menuItem in menuItems)
             {
-                menuItem.ChildMenuItems.AddRange(BuildMenuTree(allMenuItems, menuItem.Id));
+                menuItem.ChildMenuItems.AddRange(BuildMenuTree(allMenuItems, menuItem.Id, visitedParents));
             }
 
             return menuItems;

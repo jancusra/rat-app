@@ -42,7 +42,9 @@ namespace Rat.DataStorage
                         .ScanIn(migrationAssemblies).For.Migrations())
 
                 .AddTransient<IDataProviderManager, DataProviderManager>()
-                .AddTransient(serviceProvider =>
+                // scoped so the provider's reusable DataContext lives for one request and is
+                // disposed by the container at scope end (matches BaseDataProvider's contract)
+                .AddScoped(serviceProvider =>
                     serviceProvider.GetRequiredService<IDataProviderManager>().DataProvider)
 
                 .AddScoped(typeof(IRepository), typeof(Repository));

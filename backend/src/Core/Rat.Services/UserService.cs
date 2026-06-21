@@ -39,7 +39,7 @@ namespace Rat.Services
         }
 
         public virtual async Task<User> GetUserByEmailAsync(string email)
-            => await _repository.Table<User>().FirstOrDefaultAsync(x => x.Email == email);
+            => await _repository.Table<User>().FirstOrDefaultAsync(x => x.Email == email && !x.Deleted);
 
         public virtual async Task<IList<User>> GetAllAsync()
             => await _repository.GetAllAsync<User>();
@@ -102,7 +102,8 @@ namespace Rat.Services
         {
             var user = await GetUserByEmailAsync(email);
 
-            if (user != null)
+            // blocked (inactive) users cannot authenticate, even with a valid password
+            if (user != null && user.IsActive)
             {
                 var userPassword = await GetUserPasswordByUserIdAsync(user.Id);
 

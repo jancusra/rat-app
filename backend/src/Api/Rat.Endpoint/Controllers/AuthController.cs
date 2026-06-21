@@ -4,7 +4,7 @@ using Rat.Contracts.Models.User;
 using Rat.Domain.Exceptions;
 using Rat.Framework.Authentication;
 
-namespace Test.Endpoint.Controllers
+namespace Rat.Endpoint.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
@@ -27,7 +27,7 @@ namespace Test.Endpoint.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> Authenticate([FromBody]LoginDto model)
         {
-            if (model == null || string.IsNullOrEmpty(model.Email))
+            if (model == null || string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
             {
                 throw new InvalidInputRequestDataException();
             }

@@ -56,30 +56,26 @@ namespace Rat.Services
         }
 
         public virtual async Task InformationAsync(string message, Exception exception = null)
-        {
-            //don't log thread abort exception
-            if (exception is System.Threading.ThreadAbortException)
-                return;
-
-            await InsertLogAsync(LogLevelType.Information, message, exception?.ToString() ?? string.Empty);
-        }
+            => await LogAsync(LogLevelType.Information, message, exception);
 
         public virtual async Task WarningAsync(string message, Exception exception = null)
-        {
-            //don't log thread abort exception
-            if (exception is System.Threading.ThreadAbortException)
-                return;
-
-            await InsertLogAsync(LogLevelType.Warning, message, exception?.ToString() ?? string.Empty);
-        }
+            => await LogAsync(LogLevelType.Warning, message, exception);
 
         public virtual async Task ErrorAsync(string message, Exception exception = null)
+            => await LogAsync(LogLevelType.Error, message, exception);
+
+        /// <summary>
+        /// Shared logging entry point; skips thread abort exceptions (raised on request teardown).
+        /// </summary>
+        /// <param name="logLevelType">log event level</param>
+        /// <param name="message">the short description message</param>
+        /// <param name="exception">specific exception</param>
+        private async Task LogAsync(LogLevelType logLevelType, string message, Exception exception)
         {
-            //don't log thread abort exception
             if (exception is System.Threading.ThreadAbortException)
                 return;
 
-            await InsertLogAsync(LogLevelType.Error, message, exception?.ToString() ?? string.Empty);
+            await InsertLogAsync(logLevelType, message, exception?.ToString() ?? string.Empty);
         }
     }
 }

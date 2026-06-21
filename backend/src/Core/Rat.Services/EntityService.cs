@@ -808,7 +808,14 @@ namespace Rat.Services
         /// <returns>extracted int value</returns>
         private int GetIntValueByPropertyName(object source, string propertyName)
         {
-            return (int)source.GetType().GetProperty(propertyName).GetValue(source, null);
+            var property = source.GetType().GetProperty(propertyName);
+
+            if (property == null)
+            {
+                throw new NonExistingEntityEntryException(propertyName);
+            }
+
+            return (int)property.GetValue(source, null);
         }
 
         /// <summary>

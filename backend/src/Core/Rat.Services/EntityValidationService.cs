@@ -47,7 +47,7 @@ namespace Rat.Services
 
                     if (propertyInfo != null && propertyInfo.PropertyType == typeof(String)
                         && propertyInfo.HasSpecificAttribute<NotNullableStringAttribute>()
-                        && string.IsNullOrEmpty((string)entityEntry.Value))
+                        && string.IsNullOrEmpty(entityEntry.Value as string))
                     {
                         validationEntries.Add(new ValidationEntryResult {
                             FieldName = entityEntry.Key,

@@ -38,9 +38,6 @@ namespace Rat.DataStorage
             }
 
             await _dataProvider.InsertEntityAsync(entity);
-
-            /*if (publishEvent)
-                await _eventPublisher.EntityInsertedAsync(entity);*/
         }
 
         public virtual async Task UpdateAsync<TEntity>(TEntity entity) where TEntity : TableEntity
@@ -54,9 +51,6 @@ namespace Rat.DataStorage
             }
 
             await _dataProvider.UpdateEntityAsync(entity);
-
-            /*if (publishEvent)
-                await _eventPublisher.EntityInsertedAsync(entity);*/
         }
 
         public virtual async Task DeleteAsync<TEntity>(int id) where TEntity : TableEntity
@@ -74,9 +68,6 @@ namespace Rat.DataStorage
                 {
                     await _dataProvider.DeleteEntityAsync(entity);
                 }
-
-                /*if (publishEvent)
-                    await _eventPublisher.EntityInsertedAsync(entity);*/
             }
         }
 

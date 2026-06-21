@@ -102,7 +102,7 @@ namespace Rat.DataStorage.DataProviders
 
             var dataConnection = new DataConnection(dataProvider, CreateDbConnection(), GetMappingSchema())
             {
-                CommandTimeout = 60 //DataSettingsManager.GetSqlCommandTimeout()
+                CommandTimeout = 60
             };
 
             return dataConnection;

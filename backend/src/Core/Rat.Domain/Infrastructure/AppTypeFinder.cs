@@ -26,6 +26,15 @@ namespace Rat.Domain.Infrastructure
         /// </summary>
         private static readonly ConcurrentDictionary<string, string> _assemblyQualifiedNameCache = new();
 
+        /// <summary>
+        /// Cached set of resolved Rat assemblies. Built once (disk scan + load) and shared
+        /// across instances so repeated <see cref="FindClassesOfType{T}"/> calls at startup
+        /// don't re-scan the base directory.
+        /// </summary>
+        private static IList<Assembly> _allAssembliesCache;
+
+        private static readonly object _allAssembliesLock = new object();
+
         public IEnumerable<Type> FindClassesOfType<T>(bool onlyConcreteClasses = true)
         {
             return FindClassesOfType(typeof(T), onlyConcreteClasses);
@@ -158,6 +167,29 @@ namespace Rat.Domain.Infrastructure
         /// </summary>
         /// <returns>list of all application assemblies</returns>
         protected virtual IList<Assembly> GetAllAssemblies()
+        {
+            if (_allAssembliesCache != null)
+            {
+                return _allAssembliesCache;
+            }
+
+            lock (_allAssembliesLock)
+            {
+                if (_allAssembliesCache != null)
+                {
+                    return _allAssembliesCache;
+                }
+
+                _allAssembliesCache = LoadAllAssemblies();
+                return _allAssembliesCache;
+            }
+        }
+
+        /// <summary>
+        /// Scan the base directory, load any not-yet-loaded DLLs and return all Rat assemblies.
+        /// </summary>
+        /// <returns>list of all Rat project assemblies</returns>
+        private IList<Assembly> LoadAllAssemblies()
         {
             var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies().ToList();
             var loadedPaths = loadedAssemblies.Select(a => a.Location).ToArray();
