@@ -106,6 +106,9 @@ namespace Rat.DataStorage.DataProviders
 
         public virtual ITable<TEntity> GetTable<TEntity>() where TEntity : TableEntity
         {
+            // Not thread-safe by design: the provider is scoped per request and calls run
+            // sequentially, so this lazy init is safe. Do NOT parallelize repository calls
+            // (e.g. Task.WhenAll) sharing this provider — the DataContext isn't thread-safe.
             _queryDataContext ??= new DataContext(LinqToDbDataProvider, GetCurrentConnectionString())
             {
                 MappingSchema = GetMappingSchema()

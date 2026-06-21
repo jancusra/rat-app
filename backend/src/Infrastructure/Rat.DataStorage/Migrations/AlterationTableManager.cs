@@ -67,7 +67,7 @@ namespace Rat.DataStorage.Migrations
         /// <returns></returns>
         protected bool ColumnExists(string tableName, string columnName)
         {
-            return _schemaExpressionRoot.Schema("dbo").Table(tableName).Column(columnName).Exists();
+            return _schemaExpressionRoot.Schema(SchemaResolver.SchemaName).Table(tableName).Column(columnName).Exists();
         }
 
         /// <summary>

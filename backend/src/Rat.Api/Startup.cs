@@ -47,7 +47,6 @@ namespace Rat.Api
 
             services.AddScoped<TokenManagerMiddleware>();
             services.AddScoped<ITokenManager, TokenManager>();
-            services.AddScoped<IClaimsPrincipalProvider, HttpContextClaimsPrincipalProvider>();
             services.AddDistributedMemoryCache();
 
             services.AddScoped<IHashingService, HashingService>();

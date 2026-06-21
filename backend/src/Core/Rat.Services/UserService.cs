@@ -163,7 +163,9 @@ namespace Rat.Services
         /// <param name="userId">user ID</param>
         /// <returns>the password belongs to the user</returns>
         private async Task<UserPassword> GetUserPasswordByUserIdAsync(int userId)
-            => await _repository.Table<UserPassword>().FirstOrDefaultAsync(x => x.UserId == userId);
+            => await _repository.Table<UserPassword>()
+                .OrderByDescending(x => x.CreatedUTC)
+                .FirstOrDefaultAsync(x => x.UserId == userId);
 
         /// <summary>
         /// Compare two hash strings in constant time to avoid leaking information through

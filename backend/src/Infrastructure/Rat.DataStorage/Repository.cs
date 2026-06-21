@@ -29,7 +29,14 @@ namespace Rat.DataStorage
 
         public virtual async Task<TEntity> GetByIdAsync<TEntity>(int id) where TEntity : TableEntity
         {
-            return await _dataProvider.GetTable<TEntity>().FirstOrDefaultAsync(x => x.Id == id);
+            var query = Table<TEntity>();
+
+            if (typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity)))
+            {
+                query = query.Where(BuildNotDeletedPredicate<TEntity>());
+            }
+
+            return await query.FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public virtual async Task InsertAsync<TEntity>(TEntity entity) where TEntity : TableEntity

@@ -12,7 +12,7 @@ namespace Rat.DataStorage.DataProviders
     /// </summary>
     public partial class MySqlDataProvider : BaseDataProvider, IDbDataProvider
     {
-        protected override IDataProvider LinqToDbDataProvider => MySqlTools.GetDataProvider(ProviderName.MySqlConnector);
+        protected override IDataProvider LinqToDbDataProvider => MySqlTools.GetDataProvider(ProviderName.MySqlOfficial);
 
         protected override DbConnection GetInternalDbConnection(string connectionString)
         {

@@ -47,16 +47,14 @@ namespace Rat.Services
             if (withSalt)
             {
                 if (string.IsNullOrEmpty(salt))
-                {
-                    salt = GenerateSalt();
-                }
+                    throw new ArgumentException("A salt must be supplied when hashing with salt.", nameof(salt));
 
                 inputString = $"{inputString}-{salt}";
             }
 
             var hashAlgorithm = (HashAlgorithm)CryptoConfig.CreateFromName(hashType.ToString());
             var hashBytes = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
-            
+
             return Convert.ToBase64String(hashBytes);
         }
 
@@ -66,11 +64,14 @@ namespace Rat.Services
         /// <param name="inputString">input string</param>
         /// <param name="salt">the hash salt</param>
         /// <returns>GetPbkdf2Hash hashing output</returns>
-        private string GetPbkdf2Hash(string inputString, string salt = null)
+        private string GetPbkdf2Hash(string inputString, string salt)
         {
+            if (string.IsNullOrEmpty(salt))
+                throw new ArgumentException("A salt must be supplied for PBKDF2 hashing.", nameof(salt));
+
             return Convert.ToBase64String(KeyDerivation.Pbkdf2(
                 password: inputString,
-                salt: string.IsNullOrEmpty(salt) ? Encoding.UTF8.GetBytes(GenerateSalt()) : Encoding.UTF8.GetBytes(salt),
+                salt: Encoding.UTF8.GetBytes(salt),
                 prf: KeyDerivationPrf.HMACSHA512,
                 iterationCount: 1000,
                 numBytesRequested: 256 / 8));

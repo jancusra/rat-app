@@ -1,10 +1,12 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Rat.Contracts.Models.User;
 using Rat.Services;
 
 namespace Rat.Endpoint.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]/[action]")]
     public partial class UserController : ControllerBase
@@ -29,7 +31,8 @@ namespace Rat.Endpoint.Controllers
         {
             var userClaims = _userService.GetCurrentUserClaims();
 
-            return Ok(new { 
+            return Ok(new
+            {
                 userClaims.Email,
                 userClaims.IsAdmin,
                 Languages = await _languageService.GetAllAsync()
@@ -41,8 +44,9 @@ namespace Rat.Endpoint.Controllers
         /// </summary>
         /// <param name="model">model: email and necessary passwords</param>
         /// <returns>true when the user was created, false when registration did not happen</returns>
+        [AllowAnonymous]
         [HttpPost]
-        public virtual async Task<IActionResult> Register([FromBody]RegisterDto model)
+        public virtual async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
             var registered = await _userService.RegisterNewUserAsync(model.Email, model.Password, model.PasswordVerify);
 

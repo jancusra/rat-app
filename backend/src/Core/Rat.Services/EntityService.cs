@@ -131,11 +131,11 @@ namespace Rat.Services
                 {
                     case CustomEntityEntryType.MappedMultiSelect:
                         {
-                            var mapEntityType = GetTableEntityTypeByName(GetMappingTableName(entityName, entryMetadata.Name));
+                            var mapEntityType = GetTableEntityTypeByName(GetMappingTableName(entityType.Name, entryMetadata.Name));
                             var mappingsData = await GetAllEntitiesAsync<TableEntity>(mapEntityType);
                             var namedObjects = await GetAllNamedByEntityNameAsync(entryMetadata.Name);
 
-                            var primaryIdColumnName = $"{entityName}{nameof(TableEntity.Id)}";
+                            var primaryIdColumnName = $"{entityType.Name}{nameof(TableEntity.Id)}";
                             var objectIdColumnName = $"{entryMetadata.Name}{nameof(TableEntity.Id)}";
 
                             // Group mapped object IDs by primary entity ID in a single pass to avoid scanning all mappings per row

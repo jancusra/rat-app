@@ -100,7 +100,7 @@ namespace Rat.DataStorage.Migrations
         /// <returns>bool result</returns>
         protected bool TableExists(string tableName)
         {
-            return _schemaExpressionRoot.Schema("dbo").Table(tableName).Exists();
+            return _schemaExpressionRoot.Schema(SchemaResolver.SchemaName).Table(tableName).Exists();
         }
 
 

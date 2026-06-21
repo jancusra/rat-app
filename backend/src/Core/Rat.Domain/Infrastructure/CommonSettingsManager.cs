@@ -49,7 +49,8 @@ namespace Rat.Domain.Infrastructure
                 using var streamReader = new StreamReader(fileStream, Encoding.UTF8);
                 var text = streamReader.ReadToEnd();
 
-                return JsonConvert.DeserializeObject<T>(text);
+                // Never cache null, otherwise GetOrCreate would re-run the factory on every call.
+                return JsonConvert.DeserializeObject<T>(text) ?? new T();
             });
         }
     }
