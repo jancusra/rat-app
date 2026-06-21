@@ -11,7 +11,7 @@ namespace Rat.Domain.Infrastructure
     public partial interface IAppTypeFinder
     {
         /// <summary>
-        /// Find a specific classes in all project libraries
+        /// Find specific classes in all project libraries
         /// </summary>
         /// <typeparam name="T">class to find</typeparam>
         /// <param name="onlyConcreteClasses">only concrete classes (not abstract)</param>

@@ -1,7 +1,7 @@
 ﻿namespace Rat.Domain.Types
 {
     /// <summary>
-    /// Defines the types log levels
+    /// Defines the log level types
     /// </summary>
     public enum LogLevelType
     {

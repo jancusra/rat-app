@@ -12,7 +12,7 @@ namespace Rat.Services
         /// </summary>
         /// <param name="entityName">entity name</param>
         /// <param name="entityId">entity ID</param>
-        /// <returns>entity entries (properities) DTO for administration</returns>
+        /// <returns>entity entries (properties) DTO for administration</returns>
         Task<IList<EntityEntryDto>> GetEntityAsync(string entityName, int? entityId);
 
         /// <summary>

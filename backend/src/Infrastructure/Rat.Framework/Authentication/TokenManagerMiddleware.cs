@@ -15,7 +15,7 @@ namespace Rat.Framework.Authentication
         {
             _tokenManager = tokenManager;
         }
-        
+
         /// <summary>
         /// Continue to the next if token is active
         /// </summary>

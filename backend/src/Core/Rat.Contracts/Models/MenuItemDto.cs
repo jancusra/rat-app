@@ -29,7 +29,7 @@ namespace Rat.Contracts.Models
         public string Icon { get; set; }
 
         /// <summary>
-        /// Menu item childs
+        /// Menu item children
         /// </summary>
         public List<MenuItemDto> ChildMenuItems { get; set; }
     }

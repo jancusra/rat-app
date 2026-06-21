@@ -9,7 +9,7 @@ namespace Rat.Services
         /// <summary>
         /// Get all administration menu items
         /// </summary>
-        /// <returns>list of all administartion menu items</returns>
+        /// <returns>list of all administration menu items</returns>
         Task<IList<MenuItemDto>> GetAdminMenuItemsAsync();
     }
 }

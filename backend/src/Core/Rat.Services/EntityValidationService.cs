@@ -49,7 +49,8 @@ namespace Rat.Services
                         && propertyInfo.HasSpecificAttribute<NotNullableStringAttribute>()
                         && string.IsNullOrEmpty(entityEntry.Value as string))
                     {
-                        validationEntries.Add(new ValidationEntryResult {
+                        validationEntries.Add(new ValidationEntryResult
+                        {
                             FieldName = entityEntry.Key,
                             Message = string.Format(
                                 await _localizationService.GetLocaleAsync(languageId, "RequiredField"),

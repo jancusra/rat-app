@@ -25,7 +25,7 @@ namespace Rat.Endpoint.Controllers
         /// <returns>exception or OK result</returns>
         /// <exception cref="InvalidInputRequestDataException"></exception>
         [HttpPost]
-        public virtual async Task<IActionResult> Authenticate([FromBody]LoginDto model)
+        public virtual async Task<IActionResult> Authenticate([FromBody] LoginDto model)
         {
             if (model == null || string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
             {

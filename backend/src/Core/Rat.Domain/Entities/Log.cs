@@ -30,13 +30,13 @@ namespace Rat.Domain.Entities
         public int? UserId { get; set; }
 
         /// <summary>
-        /// Web address URL, where log event occurs
+        /// Web address URL where the log event occurred
         /// </summary>
         [MaxStringLength(EntityDefaults.MaxUrlLength)]
         public string PathUrl { get; set; }
 
         /// <summary>
-        /// Web address URL as referrer, where log event occurs
+        /// Referrer web address URL where the log event occurred
         /// </summary>
         [MaxStringLength(EntityDefaults.MaxUrlLength)]
         public string ReferrerUrl { get; set; }

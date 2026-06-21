@@ -561,7 +561,7 @@ namespace Rat.Services
         }
 
         /// <summary>
-        /// Extending the DTO properties of a entity with other properties configured in the code
+        /// Extend the DTO properties of an entity with other properties configured in the code
         /// </summary>
         /// <param name="entityType">the type of entity</param>
         /// <param name="entriesMetadata">entity entries metadata</param>
@@ -754,7 +754,7 @@ namespace Rat.Services
         }
 
         /// <summary>
-        /// Determine whether an entity type (interface) is derived from a specific entity type and his property
+        /// Determine whether an entity type (interface) is derived from a specific entity type and its property
         /// </summary>
         /// <typeparam name="T">entity interface type (e.g. IAuditable, INamed etc.)</typeparam>
         /// <param name="entityType">the type of entity</param>
@@ -806,7 +806,7 @@ namespace Rat.Services
         }
 
         /// <summary>
-        /// Extract int value form property object
+        /// Extract int value from property object
         /// </summary>
         /// <param name="source">input object</param>
         /// <param name="propertyName">property name</param>

@@ -11,7 +11,7 @@ namespace Rat.Framework.Exceptions
     public abstract class BaseErrorMiddleware
     {
         /// <summary>
-        /// Write the pontential issue to the response 
+        /// Write the potential issue to the response
         /// </summary>
         /// <param name="context">HTTP context</param>
         /// <param name="responseState">response state</param>

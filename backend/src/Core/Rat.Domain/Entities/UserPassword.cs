@@ -9,7 +9,7 @@ namespace Rat.Domain.Entities
     public partial class UserPassword : TableEntity
     {
         /// <summary>
-        /// User ID biding
+        /// User ID binding
         /// </summary>
         [ForeignKey(nameof(User))]
         public int UserId { get; set; }

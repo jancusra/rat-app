@@ -60,7 +60,7 @@ namespace Rat.Services
         /// <summary>
         /// Register new user
         /// </summary>
-        /// <param name="email">insetred email</param>
+        /// <param name="email">inserted email</param>
         /// <param name="password">inserted password</param>
         /// <param name="passwordVerify">password for verification</param>
         /// <returns>the result of whether the user was successfully created in the database</returns>

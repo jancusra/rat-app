@@ -1,7 +1,7 @@
 ﻿namespace Rat.Domain.EntityTypes
 {
     /// <summary>
-    /// Specify a system entry (system entry usually cann't be deleted)
+    /// Specify a system entry (system entry usually cannot be deleted)
     /// </summary>
     public partial interface ICanBeSystem
     {

@@ -88,7 +88,7 @@ namespace Rat.Domain.Infrastructure
         }
 
         /// <summary>
-        /// Find a specific classes in all project libraries
+        /// Find specific classes in all project libraries
         /// </summary>
         /// <param name="assignedType">the type of class to find</param>
         /// <param name="onlyConcreteClasses">only concrete classes (not abstract)</param>
