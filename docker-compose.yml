@@ -1,0 +1,86 @@
+services:
+  # SQL Server database
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Local456***"
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+
+  # One-shot: wait for SQL Server, then create the TestApi database
+  # (FluentMigrator migrates an existing database; it does not create one).
+  db-init:
+    image: mcr.microsoft.com/mssql-tools:latest
+    depends_on:
+      - db
+    entrypoint:
+      - bash
+      - -c
+      - >
+        for i in $(seq 1 60); do
+          /opt/mssql-tools/bin/sqlcmd -S db -U sa -P "Local456***" -Q "SELECT 1" && break;
+          echo "waiting for sql server... ($$i)"; sleep 2;
+        done;
+        /opt/mssql-tools/bin/sqlcmd -S db -U sa -P "Local456***" -Q "IF DB_ID(N'TestApi') IS NULL CREATE DATABASE [TestApi];"
+
+  # .NET 8 API — runs code-first migrations on startup, then serves on :47050.
+  # Becomes "healthy" only after MigrateUp() completes and it starts listening,
+  # so other services can use that as the "schema is ready" signal.
+  backend:
+    build: ./backend
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:47050
+    ports:
+      - "47050:47050"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:47050/api/home/"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 15s
+
+  # React app built and served as static files by nginx
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+  # Loads seed data (languages, localizations, admin user, roles, menu) from
+  # init_db.sql. Waits for the backend to be healthy first, which guarantees the
+  # code-first schema is fully migrated. Idempotent: skips if data already exists,
+  # so re-running "compose up" is safe (the script uses fixed identity IDs).
+  db-seed:
+    image: mcr.microsoft.com/mssql-tools:latest
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./backend/db:/db:ro
+    entrypoint:
+      - bash
+      - -c
+      - |
+        set -e
+        PW='Local456***'
+        existing=$$(/opt/mssql-tools/bin/sqlcmd -S db -U sa -P "$$PW" -d TestApi -h -1 -W \
+          -Q "SET NOCOUNT ON; SELECT COUNT(*) FROM [dbo].[Language]")
+        existing=$${existing//[!0-9]/}
+        if [ "$$existing" = "0" ]; then
+          echo "Schema is ready - seeding init_db.sql ...";
+          /opt/mssql-tools/bin/sqlcmd -S db -U sa -P "$$PW" -d TestApi -b -i /db/init_db.sql;
+          echo "Seed complete.";
+        else
+          echo "Data already present (Language = $$existing rows). Skipping seed.";
+        fi
+
+volumes:
+  mssql-data:

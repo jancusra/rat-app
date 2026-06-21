@@ -30,7 +30,11 @@ namespace Rat.Domain.Infrastructure
                 return Singleton<T>.Instance;
             }
 
-            var resultPath = _webHostEnvironment.ContentRootPath + settingsJsonFilePath;
+            // Normalize the relative path so it works on both Windows ("\") and Linux ("/") hosts.
+            var relativePath = settingsJsonFilePath
+                .TrimStart('\\', '/')
+                .Replace('\\', Path.DirectorySeparatorChar);
+            var resultPath = Path.Combine(_webHostEnvironment.ContentRootPath, relativePath);
 
             if (!File.Exists(resultPath))
             {
