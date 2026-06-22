@@ -9,7 +9,8 @@ import RatWebHeader from './sections/RatWebHeader';
 import { IsAdminLayout, GetCurrentLanguageId } from './Utils';
 import { LocaleContext, UserData, UserContext } from './types';
 
-axios.defaults.baseURL = "http://localhost:47050/api";
+// Build-time override (RAT_API_URL); otherwise target the host the page was loaded from.
+axios.defaults.baseURL = __RAT_API_URL__ || `${window.location.protocol}//${window.location.hostname}:47050/api`;
 axios.defaults.withCredentials = true; // send the HttpOnly auth cookie cross-origin
 
 function RatApp() {

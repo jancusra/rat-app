@@ -10,12 +10,20 @@ function RatWebHeader() {
 
     function changeAdminMenu() {
         ChangeStorageItemBoolState("hiddenAdminMenu");
-        window.location.reload();        
+        window.location.reload();
     }
 
     function setLanguage(id: number) {
         localStorage.setItem("languageId", id.toString());
         window.location.reload();
+    }
+
+    function flagSrc(code: string): string | undefined {
+        try {
+            return require("./../images/flags/" + code + ".svg");
+        } catch {
+            return undefined;
+        }
     }
 
     return (
@@ -26,30 +34,33 @@ function RatWebHeader() {
                 </div>
                 : null}
             {user.data.email ?
-                <div className="logged-user" onClick={() => {location.href = "/"}}>
+                <div className="logged-user" onClick={() => { location.href = "/" }}>
                     Logged as <span className="logged-user-email">{user.data.email}</span>
                 </div>
-            : null}
+                : null}
             {user.data.isAdmin && !IsAdminLayout() ?
-                <div className="admin-link" onClick={() => {location.href = "/admin"}}>
+                <div className="admin-link" onClick={() => { location.href = "/admin" }}>
                     {locales.Administration}
                 </div>
-            : null}
+                : null}
             {IsAdminLayout() ?
-                <div className="admin-link" onClick={() => {location.href = "/"}}>
+                <div className="admin-link" onClick={() => { location.href = "/" }}>
                     {locales.PublicWeb}
                 </div>
-            : null}
+                : null}
             {Array.isArray(user.data.languages) && user.data.languages.length > 1 ?
                 <div className="language-panel">
-                    {user.data.languages.map((language) =>
-                        <img key={language.name} className="language-image" 
-                            src={require("./../images/flags/" + language.twoLetterCode + ".svg")}
-                            alt={language.name}
-                            onClick={() => setLanguage(language.id)}></img>
-                    )}
+                    {user.data.languages.map((language) => {
+                        let src = flagSrc(language.twoLetterCode);
+                        return src ?
+                            <img key={language.name} className="language-image"
+                                src={src}
+                                alt={language.name}
+                                onClick={() => setLanguage(language.id)}></img>
+                            : null;
+                    })}
                 </div>
-            : null}
+                : null}
         </div>
     );
 }

@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 //const devMode = process.env.NODE_ENV !== "production";
@@ -58,9 +59,16 @@ module.exports = {
   },
   devServer: {
     static: paths.dist,
-    historyApiFallback: true
+    historyApiFallback: true,
+    host: '0.0.0.0',          // listen on all interfaces so the LAN IP works
+    port: 3000,
+    allowedHosts: 'all'       // accept requests sent to the machine's IP, not just localhost
   },
   plugins: [
+    new webpack.DefinePlugin({
+      // build-time API base URL; empty string falls back to the loaded host at runtime
+      __RAT_API_URL__: JSON.stringify(process.env.RAT_API_URL || '')
+    }),
     new HtmlWebpackPlugin({
       template: path.join(paths.src, 'index.html'),
       favicon: path.join(paths.src, 'favicon.ico')

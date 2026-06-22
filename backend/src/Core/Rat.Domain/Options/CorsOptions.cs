@@ -18,5 +18,16 @@ namespace Rat.Domain.Options
         /// deployments need none).
         /// </summary>
         public string AllowedOrigins { get; set; }
+
+        /// <summary>
+        /// When true (and <see cref="AllowedOrigins"/> is empty), allow any
+        /// loopback or private-network origin (localhost, 127.x, 10.x,
+        /// 172.16-31.x, 192.168.x, link-local) to call the API with credentials.
+        /// The requesting origin is reflected back, so the credentials rule is
+        /// satisfied without a wildcard. Lets a single deployment serve both
+        /// localhost and LAN clients with no per-IP config; arbitrary public
+        /// origins are still rejected. Intended for trusted local networks.
+        /// </summary>
+        public bool AllowPrivateNetwork { get; set; }
     }
 }
