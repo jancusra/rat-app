@@ -26,25 +26,42 @@ function RatWebHeader() {
         }
     }
 
+    // Activate on Enter/Space for keyboard accessibility
+    function onActivateKey(action: () => void) {
+        return (e: React.KeyboardEvent) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                action();
+            }
+        };
+    }
+
     return (
         <div className="rat-web-header">
             {IsAdminLayout() ?
-                <div className="admin-menu-icon" onClick={changeAdminMenu}>
+                <div className="admin-menu-icon" role="button" tabIndex={0}
+                    onClick={changeAdminMenu} onKeyDown={onActivateKey(changeAdminMenu)}>
                     <RatIcon name="menu" />
                 </div>
                 : null}
             {user.data.email ?
-                <div className="logged-user" onClick={() => { location.href = "/" }}>
+                <div className="logged-user" role="button" tabIndex={0}
+                    onClick={() => { location.href = "/" }}
+                    onKeyDown={onActivateKey(() => { location.href = "/" })}>
                     Logged as <span className="logged-user-email">{user.data.email}</span>
                 </div>
                 : null}
             {user.data.isAdmin && !IsAdminLayout() ?
-                <div className="admin-link" onClick={() => { location.href = "/admin" }}>
+                <div className="admin-link" role="button" tabIndex={0}
+                    onClick={() => { location.href = "/admin" }}
+                    onKeyDown={onActivateKey(() => { location.href = "/admin" })}>
                     {locales.Administration}
                 </div>
                 : null}
             {IsAdminLayout() ?
-                <div className="admin-link" onClick={() => { location.href = "/" }}>
+                <div className="admin-link" role="button" tabIndex={0}
+                    onClick={() => { location.href = "/" }}
+                    onKeyDown={onActivateKey(() => { location.href = "/" })}>
                     {locales.PublicWeb}
                 </div>
                 : null}
@@ -54,9 +71,11 @@ function RatWebHeader() {
                         let src = flagSrc(language.twoLetterCode);
                         return src ?
                             <img key={language.name} className="language-image"
+                                role="button" tabIndex={0}
                                 src={src}
                                 alt={language.name}
-                                onClick={() => setLanguage(language.id)}></img>
+                                onClick={() => setLanguage(language.id)}
+                                onKeyDown={onActivateKey(() => setLanguage(language.id))}></img>
                             : null;
                     })}
                 </div>

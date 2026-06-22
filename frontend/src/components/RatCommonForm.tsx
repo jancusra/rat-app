@@ -28,6 +28,9 @@ function RatCommonForm(props: CommonFormProps) {
                     });
 
                     setValidationData(initialValidation);
+                })
+                .catch(function (error) {
+                    console.error("Failed to load form data", error);
                 });
         }
     }

@@ -15,6 +15,9 @@ function RatHome() {
         axios.post("/auth/logout")
             .then(function () {
                 location.href = "/";
+            })
+            .catch(function (error) {
+                console.error("Failed to logout", error);
             });
     }
 

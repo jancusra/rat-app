@@ -13,7 +13,10 @@ function RatCommonDetail(props: CommonDetailProps) {
             axios.post("/entity/getentity/", { id: parseInt(props.entityId), entityName: props.entityName })
                 .then(function (response) {
                     setDetailData(response.data);
-            });
+                })
+                .catch(function (error) {
+                    console.error("Failed to load detail data", error);
+                });
         }
     }
 

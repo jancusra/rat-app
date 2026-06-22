@@ -11,6 +11,9 @@ function RatTreeMenu(props: TreeMenuProps) {
         axios.post(props.apiSource)
         .then(function (response) {
             setMenuData(response.data);
+        })
+        .catch(function (error) {
+            console.error("Failed to load menu", error);
         });
     }
 

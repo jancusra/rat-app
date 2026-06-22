@@ -14,6 +14,7 @@ import { SelectOptions } from './types';
 
 function RatGrid(props: GridProps) {
   const [paginationModel, setPaginationModel] = useState({ pageSize: 15, page: 0 });
+  const [rawColumns, setRawColumns] = useState<Array<GridColumn>>([]);
   const [columns, setColumns] = useState<Array<GridColDef>>([]);
   const [gridData, setGridData] = useState([]);
   const [hiddenColumns, setHiddenColumns] = useState<GridColumnVisibilityModel>({});
@@ -33,141 +34,156 @@ function RatGrid(props: GridProps) {
     axios.post("/entity/deleteentity", { entityName: props.entityName, id: id })
       .then(function () {
         getGridData();
+      })
+      .catch(function (error) {
+        console.error("Failed to delete entity", error);
       });
   }
 
   function getGridData() {
     axios.post("/entity/getalltotable", { entityName: props.entityName })
       .then(function (response) {
-        let columnsData: Array<GridColDef> = [];
-        const visibilityModel: GridColumnVisibilityModel = {};
-        const optionsData: { [field: string]: SelectOptions } = {};
-
-        response.data.columns.forEach(function (column: GridColumn) {
-          let columnObject: GridColDef = {
-            field: lowerFirstLetter(column.name),
-            headerName: column.entryType != "EnumIcon" ? locales[column.name] : ""
-          };
-
-          if (columnObject.field == "id" || column.hidden) {
-            visibilityModel[columnObject.field] = false;
-          }
-
-          switch (column.entryType) {
-            case "String": {
-              columnObject["flex"] = 1;
-              break;
-            }
-            case "Boolean": {
-              columnObject["renderCell"] = ({ value }) => (
-                <>
-                  {value ? <RatIcon name="task_alt" />
-                    : <RatIcon name="radio_button_unchecked" />}
-                </>
-              );
-              columnObject["width"] = 150;
-              break;
-            }
-            case "DateTime": {
-              columnObject["valueGetter"] = (value: string) => {
-                const date = new Date(value);
-                return date.toLocaleString('en-us');
-              };
-              columnObject["flex"] = 1;
-              break;
-            }
-            case "Enum": {
-              optionsData[columnObject.field] = column.selectOptions;
-              columnObject["valueGetter"] = (value: number) => {
-                return optionsData[columnObject.field][value];
-              };
-              columnObject["flex"] = 1;
-              break;
-            }
-            case "EnumIcon": {
-              optionsData[columnObject.field] = column.selectOptions;
-              columnObject["renderCell"] = ({ value }) => (
-                <RatIcon class={lowerFirstLetter(optionsData[columnObject.field][value])}
-                  name={IconsByString[optionsData[columnObject.field][value]]} />
-              );
-              columnObject["width"] = 50;
-              break;
-            }
-            case "MappedMultiSelect": {
-              columnObject["renderCell"] = ({ row }) => (
-                <RatMultiSelect
-                  name={columnObject.field}
-                  readOnly
-                  stringValues
-                  value={row[columnObject.field]}
-                  selectData={column.selectOptions} />
-              );
-              columnObject["width"] = 600;
-              break;
-            }
-            case "ShowDetailButton": {
-              columnObject["renderCell"] = ({ row }) => (
-                <Button variant="contained"
-                  color="primary"
-                  startIcon={<OpenInBrowserIcon />}
-                  onClick={() => entityRedirect(row.id)}>
-                  {locales.Detail}
-                </Button>
-              );
-              columnObject["width"] = 150;
-              break;
-            }
-            case "EditInViewButton": {
-              columnObject["renderCell"] = ({ row }) => (
-                <Button variant="contained"
-                  color="secondary"
-                  startIcon={<EditIcon />}
-                  disabled={row.hasOwnProperty("isSystemEntry") ? row.isSystemEntry : false}
-                  onClick={() => entityRedirect(row.id)}>
-                  {locales.Edit}
-                </Button>
-              );
-              columnObject["width"] = 150;
-              break;
-            }
-            case "DeleteButton": {
-              columnObject["renderCell"] = ({ row }) => (
-                <Button variant="contained"
-                  color="error"
-                  startIcon={<DeleteIcon />}
-                  disabled={row.hasOwnProperty("isSystemEntry") ? row.isSystemEntry : false}
-                  onClick={() => deleteEntry(row.id)}>
-                  {locales.Delete}
-                </Button>
-              );
-              columnObject["width"] = 150;
-              break;
-            }
-            default: {
-              break;
-            }
-          }
-
-          if (column.width > 0) {
-            columnObject["width"] = column.width;
-          }
-
-          if (column.flex > 0) {
-            columnObject["flex"] = column.flex;
-          }
-
-          columnsData.push(columnObject);
-        });
-
-        setColumns(columnsData);
+        setRawColumns(response.data.columns);
         setGridData(response.data.data);
-        setHiddenColumns(visibilityModel);
+      })
+      .catch(function (error) {
+        console.error("Failed to load grid data", error);
       });
+  }
+
+  // Rebuild columns whenever raw data or locales change so headers/labels stay localized.
+  function buildColumns() {
+    let columnsData: Array<GridColDef> = [];
+    const visibilityModel: GridColumnVisibilityModel = {};
+    const optionsData: { [field: string]: SelectOptions } = {};
+
+    rawColumns.forEach(function (column: GridColumn) {
+      let columnObject: GridColDef = {
+        field: lowerFirstLetter(column.name),
+        headerName: column.entryType != "EnumIcon" ? locales[column.name] : ""
+      };
+
+      if (columnObject.field == "id" || column.hidden) {
+        visibilityModel[columnObject.field] = false;
+      }
+
+      switch (column.entryType) {
+        case "String": {
+          columnObject["flex"] = 1;
+          break;
+        }
+        case "Boolean": {
+          columnObject["renderCell"] = ({ value }) => (
+            <>
+              {value ? <RatIcon name="task_alt" />
+                : <RatIcon name="radio_button_unchecked" />}
+            </>
+          );
+          columnObject["width"] = 150;
+          break;
+        }
+        case "DateTime": {
+          columnObject["valueGetter"] = (value: string) => {
+            const date = new Date(value);
+            return date.toLocaleString('en-us');
+          };
+          columnObject["flex"] = 1;
+          break;
+        }
+        case "Enum": {
+          optionsData[columnObject.field] = column.selectOptions;
+          columnObject["valueGetter"] = (value: number) => {
+            return optionsData[columnObject.field][value];
+          };
+          columnObject["flex"] = 1;
+          break;
+        }
+        case "EnumIcon": {
+          optionsData[columnObject.field] = column.selectOptions;
+          columnObject["renderCell"] = ({ value }) => (
+            <RatIcon class={lowerFirstLetter(optionsData[columnObject.field][value])}
+              name={IconsByString[optionsData[columnObject.field][value]]} />
+          );
+          columnObject["width"] = 50;
+          break;
+        }
+        case "MappedMultiSelect": {
+          columnObject["renderCell"] = ({ row }) => (
+            <RatMultiSelect
+              name={columnObject.field}
+              readOnly
+              stringValues
+              value={row[columnObject.field]}
+              selectData={column.selectOptions} />
+          );
+          columnObject["width"] = 600;
+          break;
+        }
+        case "ShowDetailButton": {
+          columnObject["renderCell"] = ({ row }) => (
+            <Button variant="contained"
+              color="primary"
+              startIcon={<OpenInBrowserIcon />}
+              onClick={() => entityRedirect(row.id)}>
+              {locales.Detail}
+            </Button>
+          );
+          columnObject["width"] = 150;
+          break;
+        }
+        case "EditInViewButton": {
+          columnObject["renderCell"] = ({ row }) => (
+            <Button variant="contained"
+              color="secondary"
+              startIcon={<EditIcon />}
+              disabled={row.hasOwnProperty("isSystemEntry") ? row.isSystemEntry : false}
+              onClick={() => entityRedirect(row.id)}>
+              {locales.Edit}
+            </Button>
+          );
+          columnObject["width"] = 150;
+          break;
+        }
+        case "DeleteButton": {
+          columnObject["renderCell"] = ({ row }) => (
+            <Button variant="contained"
+              color="error"
+              startIcon={<DeleteIcon />}
+              disabled={row.hasOwnProperty("isSystemEntry") ? row.isSystemEntry : false}
+              onClick={() => deleteEntry(row.id)}>
+              {locales.Delete}
+            </Button>
+          );
+          columnObject["width"] = 150;
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+
+      if (column.width > 0) {
+        columnObject["width"] = column.width;
+      }
+
+      if (column.flex > 0) {
+        columnObject["flex"] = column.flex;
+      }
+
+      columnsData.push(columnObject);
+    });
+
+    setColumns(columnsData);
+    setHiddenColumns(visibilityModel);
   }
 
   useEffect(() => {
     getGridData();
   }, [])
+
+  useEffect(() => {
+    buildColumns();
+  }, [rawColumns, locales])
 
   return (
     <DataGrid
