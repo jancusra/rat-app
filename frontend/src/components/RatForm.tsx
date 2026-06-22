@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import RatLocales from '../contexts/RatLocales';
 import { GetCurrentLanguageId } from '../Utils';
-import { FormData, FormEntry, ValidationResult } from './types';
+import { RatFormData, FormEntry, ValidationResult } from './types';
 
 function RatForm(props: RatFormProps) {
     const [commonMessage, setMessage] = useState<string>("");
@@ -14,7 +14,7 @@ function RatForm(props: RatFormProps) {
 
     function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
         e.preventDefault();
-        let reducedFormData: FormData = {};
+        let reducedFormData: RatFormData = {};
 
         if (Array.isArray(props.formData))
         {
@@ -86,7 +86,7 @@ type RatFormProps = {
     entityName?: string;
     apiSource: string;
     class?: string;
-    formData: FormData | Array<FormEntry>;
+    formData: RatFormData | Array<FormEntry>;
     buttonContent: string;
     showCancelButton?: boolean;
     showBackButton: boolean;

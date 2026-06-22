@@ -12,6 +12,10 @@ import RatLocales from '../contexts/RatLocales';
 import { IconsByString } from '../fonts/IconsByString';
 import { SelectOptions } from './types';
 
+function lowerFirstLetter(str: string) {
+  return str.charAt(0).toLowerCase() + str.slice(1);
+}
+
 function RatGrid(props: GridProps) {
   const [paginationModel, setPaginationModel] = useState({ pageSize: 15, page: 0 });
   const [rawColumns, setRawColumns] = useState<Array<GridColumn>>([]);
@@ -21,25 +25,6 @@ function RatGrid(props: GridProps) {
   const locales = useContext(RatLocales);
   const navigate = useNavigate();
   const location = useLocation();
-
-  function lowerFirstLetter(str: string) {
-    return str.charAt(0).toLowerCase() + str.slice(1);
-  }
-
-  function entityRedirect(id: number) {
-    let url = location.pathname.replace(/\/$/, "");
-    navigate(url + "/" + id);
-  }
-
-  function deleteEntry(id: number) {
-    axios.post("/entity/deleteentity", { entityName: props.entityName, id: id })
-      .then(function () {
-        getGridData();
-      })
-      .catch(function (error) {
-        console.error("Failed to delete entity", error);
-      });
-  }
 
   const getGridData = useCallback(function () {
     axios.post("/entity/getalltotable", { entityName: props.entityName })
@@ -52,21 +37,31 @@ function RatGrid(props: GridProps) {
       });
   }, [props.entityName]);
 
+  const entityRedirect = useCallback(function (id: number) {
+    let url = location.pathname.replace(/\/$/, "");
+    navigate(url + "/" + id);
+  }, [location.pathname, navigate]);
+
+  const deleteEntry = useCallback(function (id: number) {
+    axios.post("/entity/deleteentity", { entityName: props.entityName, id: id })
+      .then(function () {
+        getGridData();
+      })
+      .catch(function (error) {
+        console.error("Failed to delete entity", error);
+      });
+  }, [props.entityName, getGridData]);
+
   // Rebuild columns whenever raw data or locales change so headers/labels stay localized.
-  function buildColumns() {
+  const buildColumns = useCallback(function () {
     let columnsData: Array<GridColDef> = [];
-    const visibilityModel: GridColumnVisibilityModel = {};
     const optionsData: { [field: string]: SelectOptions } = {};
 
     rawColumns.forEach(function (column: GridColumn) {
       let columnObject: GridColDef = {
         field: lowerFirstLetter(column.name),
-        headerName: column.entryType != "EnumIcon" ? locales[column.name] : ""
+        headerName: column.entryType !== "EnumIcon" ? locales[column.name] : ""
       };
-
-      if (columnObject.field == "id" || column.hidden) {
-        visibilityModel[columnObject.field] = false;
-      }
 
       switch (column.entryType) {
         case "String": {
@@ -94,17 +89,17 @@ function RatGrid(props: GridProps) {
         case "Enum": {
           optionsData[columnObject.field] = column.selectOptions;
           columnObject["valueGetter"] = (value: number) => {
-            return optionsData[columnObject.field][value];
+            return optionsData[columnObject.field]?.[value];
           };
           columnObject["flex"] = 1;
           break;
         }
         case "EnumIcon": {
           optionsData[columnObject.field] = column.selectOptions;
-          columnObject["renderCell"] = ({ value }) => (
-            <RatIcon class={lowerFirstLetter(optionsData[columnObject.field][value])}
-              name={IconsByString[optionsData[columnObject.field][value]]} />
-          );
+          columnObject["renderCell"] = ({ value }) => {
+            const option = optionsData[columnObject.field]?.[value];
+            return option ? <RatIcon class={lowerFirstLetter(option)} name={IconsByString[option]} /> : null;
+          };
           columnObject["width"] = 50;
           break;
         }
@@ -175,8 +170,23 @@ function RatGrid(props: GridProps) {
     });
 
     setColumns(columnsData);
-    setHiddenColumns(visibilityModel);
-  }
+  }, [rawColumns, locales, entityRedirect, deleteEntry]);
+
+  // Default visibility depends only on the schema; merge so user toggles win.
+  useEffect(() => {
+    const defaults: GridColumnVisibilityModel = {};
+
+    rawColumns.forEach(function (column: GridColumn) {
+      const field = lowerFirstLetter(column.name);
+      if (field === "id" || column.hidden) {
+        defaults[field] = false;
+      }
+    });
+
+    setHiddenColumns(function (prev) {
+      return { ...defaults, ...prev };
+    });
+  }, [rawColumns])
 
   useEffect(() => {
     getGridData();
@@ -184,7 +194,7 @@ function RatGrid(props: GridProps) {
 
   useEffect(() => {
     buildColumns();
-  }, [rawColumns, locales])
+  }, [buildColumns])
 
   return (
     <DataGrid

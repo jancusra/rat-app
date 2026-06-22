@@ -3,7 +3,7 @@ import RatTreeMenu from '../components/RatTreeMenu';
 import '../css/admin.css';
 
 function RatAdminLayout() {
-    const hiddenAdminMenu = localStorage.getItem("hiddenAdminMenu") == "true";
+    const hiddenAdminMenu = localStorage.getItem("hiddenAdminMenu") === "true";
 
     return (
         <>

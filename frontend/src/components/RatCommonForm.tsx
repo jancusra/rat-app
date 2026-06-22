@@ -37,7 +37,7 @@ function RatCommonForm(props: CommonFormProps) {
 
     function updateField(data: FormControlState) {
         const newState = formData.map(obj => {
-            if (data.name == obj.name) {
+            if (data.name === obj.name) {
                 return { ...obj, value: data.value };
             }
             return obj;

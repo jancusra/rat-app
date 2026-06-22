@@ -28,12 +28,12 @@ function RatCommonDetail(props: CommonDetailProps) {
         <table className='table-detail'>
             <tbody>
                 {detailData.map((detailEntry) => {
-                    if (detailEntry.name != "Id")
+                    if (detailEntry.name !== "Id")
                         return (
                             <tr key={detailEntry.name}>
                                 <td className="detail-name">{locales[detailEntry.name]}:</td>
                                 {detailEntry.selectOptions != null && Object.keys(detailEntry.selectOptions).length > 0 
-                                    && typeof detailEntry.value == "number"
+                                    && typeof detailEntry.value === "number"
                                     ? <td>{detailEntry.selectOptions[detailEntry.value]}</td>
                                     : <td>{detailEntry.value}</td>}
                             </tr>

@@ -17,7 +17,7 @@ function RatTextField(props: TextFieldProps) {
             name={props.name}
             label={props.label}
             placeholder={props.label}
-            value={props.value}
+            value={props.value ?? ''}
             error={props.error}
             helperText={props.errorMessage}
             onChange={onChange} />

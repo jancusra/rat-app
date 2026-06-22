@@ -4,10 +4,10 @@ import RatForm from '../../components/RatForm';
 import RatTextField from '../../components/RatTextField';
 import RatUser from '../../contexts/RatUser';
 import RatLocales from '../../contexts/RatLocales';
-import { FormControlState, FormData } from '../../components/types';
+import { FormControlState, RatFormData } from '../../components/types';
 
 function RatLoginForm() {
-    const [formData, setState] = useState<FormData>({});
+    const [formData, setState] = useState<RatFormData>({});
     const user = useContext(RatUser);
     const locales = useContext(RatLocales);
     const navigate = useNavigate();

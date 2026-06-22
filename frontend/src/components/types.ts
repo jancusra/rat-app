@@ -7,7 +7,7 @@ export type FormControlState = {
     value: number | string | boolean | Array<number> | Array<string>;
 }
 
-export type FormData = {
+export type RatFormData = {
     [key: string]: number | string | boolean | Array<number> | Array<string>
 }
 
