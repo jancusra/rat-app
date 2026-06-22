@@ -38,9 +38,9 @@ function RatTreeMenuItem(props: TreeMenuItemProps) {
             {props.menuData.childMenuItems.length > 0 &&
                 <Collapse in={open} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
-                        {props.menuData.childMenuItems.map((menuItem, index) => {
+                        {props.menuData.childMenuItems.map((menuItem) => {
                             return (
-                                <ListItemButton key={index} onClick={() => handleClick(menuItem.url)} sx={{ pl: 4 }}>
+                                <ListItemButton key={menuItem.id} onClick={() => handleClick(menuItem.url)} sx={{ pl: 4 }}>
                                     <ListItemIcon>
                                         <RatIcon name={menuItem.icon} />
                                     </ListItemIcon>

@@ -85,7 +85,7 @@ export default RatForm;
 type RatFormProps = {
     entityName?: string;
     apiSource: string;
-    class: string;
+    class?: string;
     formData: FormData | Array<FormEntry>;
     buttonContent: string;
     showCancelButton?: boolean;

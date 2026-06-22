@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import RatLocales from '../contexts/RatLocales';
 import { FormEntry } from './types';
@@ -7,7 +7,7 @@ function RatCommonDetail(props: CommonDetailProps) {
     const [detailData, setDetailData] = useState<Array<FormEntry>>([]);
     const locales = useContext(RatLocales);
 
-    function getDetailData() {
+    const getDetailData = useCallback(function () {
         if (props.entityId)
         {
             axios.post("/entity/getentity/", { id: parseInt(props.entityId), entityName: props.entityName })
@@ -18,11 +18,11 @@ function RatCommonDetail(props: CommonDetailProps) {
                     console.error("Failed to load detail data", error);
                 });
         }
-    }
+    }, [props.entityId, props.entityName]);
 
     useEffect(() => {
         getDetailData();
-    }, [])
+    }, [getDetailData])
 
     return (
         <table className='table-detail'>

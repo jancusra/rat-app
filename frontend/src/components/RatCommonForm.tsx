@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import RatForm from '../components/RatForm';
@@ -15,7 +15,7 @@ function RatCommonForm(props: CommonFormProps) {
     const locales = useContext(RatLocales);
     const navigate = useNavigate();
 
-    function getFormData() {
+    const getFormData = useCallback(function () {
         if (props.entityId) {
             axios.post("/entity/getentity/", { id: parseInt(props.entityId), entityName: props.entityName })
                 .then(function (response) {
@@ -33,7 +33,7 @@ function RatCommonForm(props: CommonFormProps) {
                     console.error("Failed to load form data", error);
                 });
         }
-    }
+    }, [props.entityId, props.entityName]);
 
     function updateField(data: FormControlState) {
         const newState = formData.map(obj => {
@@ -72,7 +72,7 @@ function RatCommonForm(props: CommonFormProps) {
 
     useEffect(() => {
         getFormData();
-    }, [])
+    }, [getFormData])
 
     return (
         <RatForm

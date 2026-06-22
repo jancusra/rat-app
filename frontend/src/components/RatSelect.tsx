@@ -19,7 +19,7 @@ function RatSelect(props: SelectProps) {
 
     useEffect(() => {
         setSelectValue(String(props.value));
-    }, [])
+    }, [props.value])
 
     return (
         <FormControl fullWidth>
@@ -29,8 +29,8 @@ function RatSelect(props: SelectProps) {
                 value={selectValue}
                 onChange={onChange}>
                 {
-                    Object.keys(props.selectData).map((key, index) => ( 
-                        <MenuItem key={index} value={key}>{props.selectData[key]}</MenuItem>
+                    Object.keys(props.selectData).map((key) => (
+                        <MenuItem key={key} value={key}>{props.selectData[key]}</MenuItem>
                     ))
                 }
             </Select>

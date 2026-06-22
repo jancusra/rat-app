@@ -39,7 +39,7 @@ function RatMultiSelect(props: MultiSelectProps) {
 
         setAllOptionValues(allOptions);
         setSelectedOptionValues(selectedOptions);
-    }, [])
+    }, [props.selectData, props.value, props.stringValues])
 
     return (
         <FormControl fullWidth>

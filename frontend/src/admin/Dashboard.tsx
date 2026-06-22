@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import { useContext, useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
@@ -8,20 +8,20 @@ import RatLocales from '../contexts/RatLocales';
 import '../css/admin.css';
 
 function Dashboard() {
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
     const locales = useContext(RatLocales);
 
-    const handleClick = () => {
+    function handleClick() {
         setOpen(true);
-    };
+    }
 
-    const handleClose = (e?: React.SyntheticEvent | Event, reason?: string) => {
+    function handleClose(_e?: React.SyntheticEvent | Event, reason?: string) {
         if (reason === 'clickaway') {
             return;
         }
 
         setOpen(false);
-    };
+    }
 
     return (
         <Stack spacing={2} sx={{ width: '100%' }}>

@@ -22,7 +22,7 @@ function RatHome() {
     }
 
     return <div className="action-buttons">
-                <img src={ratImage} className="rat-image" alt="image" />
+                <img src={ratImage} className="rat-image" alt="Rat logo" />
                 {!user.data.email ?
                     <>
                         <Button variant="contained" onClick={() => {navigate("/login");}}>

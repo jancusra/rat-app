@@ -1,5 +1,5 @@
-import { useContext, useEffect, useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { DataGrid, GridColDef, GridColumnVisibilityModel } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
@@ -20,6 +20,7 @@ function RatGrid(props: GridProps) {
   const [hiddenColumns, setHiddenColumns] = useState<GridColumnVisibilityModel>({});
   const locales = useContext(RatLocales);
   const navigate = useNavigate();
+  const location = useLocation();
 
   function lowerFirstLetter(str: string) {
     return str.charAt(0).toLowerCase() + str.slice(1);
@@ -40,7 +41,7 @@ function RatGrid(props: GridProps) {
       });
   }
 
-  function getGridData() {
+  const getGridData = useCallback(function () {
     axios.post("/entity/getalltotable", { entityName: props.entityName })
       .then(function (response) {
         setRawColumns(response.data.columns);
@@ -49,7 +50,7 @@ function RatGrid(props: GridProps) {
       .catch(function (error) {
         console.error("Failed to load grid data", error);
       });
-  }
+  }, [props.entityName]);
 
   // Rebuild columns whenever raw data or locales change so headers/labels stay localized.
   function buildColumns() {
@@ -179,7 +180,7 @@ function RatGrid(props: GridProps) {
 
   useEffect(() => {
     getGridData();
-  }, [])
+  }, [getGridData])
 
   useEffect(() => {
     buildColumns();
