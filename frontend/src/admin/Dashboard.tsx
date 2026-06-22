@@ -1,12 +1,11 @@
-import React from 'react';
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import RatLocales from '../contexts/RatLocales';
-import '../css/admin';
+import '../css/admin.css';
 
 function Dashboard() {
     const [open, setOpen] = React.useState(false);
@@ -40,15 +39,15 @@ function Dashboard() {
                     {locales.Message} ... <strong>{locales.CheckItOut}!</strong>
                 </Alert>
                 <Alert severity="success">
-                    <AlertTitle>{locales.Error}</AlertTitle>
+                    <AlertTitle>{locales.Success}</AlertTitle>
                     {locales.Message} ... <strong>{locales.CheckItOut}!</strong>
                 </Alert>
             </Stack>
             <Button variant="outlined" onClick={handleClick}>
                 {locales.Open} {locales.Success}
             </Button>
-            <Snackbar open={open} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} 
-                    autoHideDuration={6000} onClose={handleClose}>
+            <Snackbar open={open} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                autoHideDuration={6000} onClose={handleClose}>
                 <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
                     {locales.Message} {locales.Success}!
                 </Alert>

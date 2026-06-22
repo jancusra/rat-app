@@ -103,7 +103,7 @@ function RatCommonForm(props: CommonFormProps) {
                             key={formEntry.name}
                             name={formEntry.name}
                             label={locales[formEntry.name]}
-                            value={formEntry.value as string}
+                            value={formEntry.value as number}
                             selectData={formEntry.selectOptions}
                             callback={updateField} />,
                         'MappedMultiSelect': <RatMultiSelect

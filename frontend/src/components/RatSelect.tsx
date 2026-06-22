@@ -2,23 +2,23 @@ import { useEffect, useState } from 'react';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { FormControlState, SelectOptions } from './types';
 
 function RatSelect(props: SelectProps) {
     const [selectValue, setSelectValue] = useState<string>("");
 
-    function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    function onChange(e: SelectChangeEvent) {
         setSelectValue(e.target.value);
 
         props.callback({
             name: props.name,
-            value: parseInt(e.target.value) 
+            value: parseInt(e.target.value)
         });
     }
 
     useEffect(() => {
-        setSelectValue(props.value);
+        setSelectValue(String(props.value));
     }, [])
 
     return (
@@ -43,7 +43,7 @@ export default RatSelect;
 type SelectProps = {
     name: string;
     label: string;
-    value: string;
+    value: number;
     selectData: SelectOptions;
     callback: (state: FormControlState) => void;
 }

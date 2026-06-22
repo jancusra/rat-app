@@ -8,15 +8,14 @@ function RatMultiSelect(props: MultiSelectProps) {
     const [selectedOptionValues, setSelectedOptionValues] = useState<Array<SelectOption>>([]);
     const [allOptionValues, setAllOptionValues] = useState<Array<SelectOption>>([]);
 
-    function onChange(e: React.ChangeEvent<HTMLInputElement>, value: any) {
+    function onChange(_e: React.SyntheticEvent, value: Array<SelectOption>) {
         setSelectedOptionValues(value);
 
-        let ids = value.map(function(x: SelectOption) {
+        let ids = value.map(function (x: SelectOption) {
             return x.id;
         });
 
-        if (props.callback)
-        {
+        if (props.callback) {
             props.callback({
                 name: props.name,
                 value: ids as Array<number>
@@ -33,7 +32,7 @@ function RatMultiSelect(props: MultiSelectProps) {
             let option: SelectOption = { id: id, name: props.selectData[key] };
             allOptions.push(option);
 
-            if (props.value.includes(id as never)) {
+            if ((props.value as Array<number | string>)?.includes(id)) {
                 selectedOptions.push(option);
             }
         }
@@ -55,7 +54,7 @@ function RatMultiSelect(props: MultiSelectProps) {
                 isOptionEqualToValue={(option, value) => option.id === value.id}
                 renderInput={(params) => (
                     <TextField
-                        {...params }
+                        {...params}
                         label={props.label}
                     />
                 )}
