@@ -1,12 +1,12 @@
-import React from 'react';
+import { lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import RatEntityList from '../components/RatEntityList';
 import RatEntityForm from '../components/RatEntityForm';
 import RatEntityDetail from '../components/RatEntityDetail';
 
-const AdminLayout = React.lazy(() => import('./RatAdminLayout'));
-const Dashboard = React.lazy(() => import('./Dashboard'));
-const NotFound = React.lazy(() => import('../web/NotFound'));
+const AdminLayout = lazy(() => import('./RatAdminLayout'));
+const Dashboard = lazy(() => import('./Dashboard'));
+const NotFound = lazy(() => import('../web/NotFound'));
 
 function RatAdminRoutes() {
     return (

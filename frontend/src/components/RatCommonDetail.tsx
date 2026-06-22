@@ -1,12 +1,12 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
-import RatIcon from './RatIcon';
+import RatBoolIcon from './RatBoolIcon';
 import RatLocales from '../contexts/RatLocales';
 import { FormEntry } from './types';
 
 function renderValue(entry: FormEntry) {
     if (typeof entry.value === "boolean") {
-        return entry.value ? <RatIcon name="task_alt" /> : <RatIcon name="radio_button_unchecked" />;
+        return <RatBoolIcon value={entry.value} />;
     }
 
     const hasOptions = entry.selectOptions != null && Object.keys(entry.selectOptions).length > 0;
@@ -31,7 +31,7 @@ function RatCommonDetail(props: CommonDetailProps) {
 
     const getDetailData = useCallback(function () {
         if (props.entityId) {
-            axios.post("/entity/getentity/", { id: Number(props.entityId), entityName: props.entityName })
+            axios.post("/entity/getEntity", { id: Number(props.entityId), entityName: props.entityName })
                 .then(function (response) {
                     setDetailData(response.data);
                 })

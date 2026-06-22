@@ -1,11 +1,11 @@
-import React from 'react';
+import { createContext } from 'react';
 import { UserContext } from '../types';
 
-const defaultValue: UserContext = { 
-    data: {}, 
-    getUserData: () => void 0 
+const defaultValue: UserContext = {
+    data: {},
+    getUserData: () => void 0
 };
 
-const RatUser = React.createContext<UserContext>(defaultValue);
+const RatUser = createContext<UserContext>(defaultValue);
 
 export default RatUser;

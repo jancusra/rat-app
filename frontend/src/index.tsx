@@ -5,7 +5,7 @@ import './css/styles.css';
 const root = document.getElementById('root');
 
 if (root) {
-  ReactDOM.createRoot(root).render(
-    <RatApp />
-  );
+    ReactDOM.createRoot(root).render(
+        <RatApp />
+    );
 }

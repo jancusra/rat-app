@@ -6,12 +6,12 @@ function RatCheckbox(props: CheckboxProps) {
     function onChange(e: React.ChangeEvent<HTMLInputElement>) {
         props.callback({
             name: e.target.name,
-            value: e.target.checked 
+            value: e.target.checked
         });
     }
 
     return (
-        <FormControlLabel 
+        <FormControlLabel
             control={
                 <Checkbox
                     name={props.name}

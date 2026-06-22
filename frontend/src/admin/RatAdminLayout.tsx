@@ -11,7 +11,7 @@ function RatAdminLayout() {
         <>
             {!hiddenAdminMenu
                 ? <div className="admin-menu">
-                    <RatTreeMenu apiSource="/menu/getmenu" />
+                    <RatTreeMenu apiSource="/menu/getMenu" />
                 </div>
                 : null}
             <div className="admin-content" style={hiddenAdminMenu ? { left: '0' } : {}} >

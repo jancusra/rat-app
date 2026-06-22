@@ -8,7 +8,13 @@ import RatLocales from './contexts/RatLocales';
 import RatAppContext from './contexts/RatAppContext';
 import RatWebHeader from './sections/RatWebHeader';
 import RatErrorBoundary from './components/RatErrorBoundary';
-import { GetCurrentLanguageId, ChangeStorageItemBoolState, IsAdminLayout } from './Utils';
+import {
+    getCurrentLanguageId,
+    changeStorageItemBoolState,
+    isAdminLayout,
+    STORAGE_LANGUAGE_ID,
+    STORAGE_HIDDEN_ADMIN_MENU
+} from './Utils';
 import { LocaleContext, UserData, UserContext, AppContext } from './types';
 
 // Build-time override (RAT_API_URL); otherwise target the host the page was loaded from.
@@ -19,9 +25,9 @@ function RatApp() {
     const [userData, setUserData] = useState<UserData>({});
     const [userLoaded, setUserLoaded] = useState(false);
     const [locales, setLocales] = useState<LocaleContext>({});
-    const [languageId, setLanguageId] = useState<number>(GetCurrentLanguageId());
+    const [languageId, setLanguageId] = useState<number>(getCurrentLanguageId());
     const [hiddenAdminMenu, setHiddenAdminMenu] = useState<boolean>(
-        localStorage.getItem("hiddenAdminMenu") === "true"
+        localStorage.getItem(STORAGE_HIDDEN_ADMIN_MENU) === "true"
     );
 
     function getUserData() {
@@ -38,7 +44,7 @@ function RatApp() {
     }
 
     function getLocales(langId: number) {
-        axios.get("/localization/getByLanguageId?languageId=" + langId)
+        axios.get(`/localization/getByLanguageId?languageId=${langId}`)
             .then(function (response) {
                 setLocales(response.data);
             })
@@ -48,12 +54,12 @@ function RatApp() {
     }
 
     function setLanguage(id: number) {
-        localStorage.setItem("languageId", id.toString());
+        localStorage.setItem(STORAGE_LANGUAGE_ID, id.toString());
         setLanguageId(id);
     }
 
     function toggleAdminMenu() {
-        ChangeStorageItemBoolState("hiddenAdminMenu");
+        changeStorageItemBoolState(STORAGE_HIDDEN_ADMIN_MENU);
         setHiddenAdminMenu((prev) => !prev);
     }
 
@@ -109,7 +115,7 @@ function RatRoutedContent(props: RatLayoutProps) {
 function RatLayout(props: RatLayoutProps) {
     const location = useLocation();
     const navigate = useNavigate();
-    const adminArea = IsAdminLayout(location.pathname);
+    const adminArea = isAdminLayout(location.pathname);
     const blockAdmin = adminArea && props.userLoaded && !props.userData.isAdmin;
 
     // Keep non-admins out of the admin area entirely.

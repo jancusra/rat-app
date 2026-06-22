@@ -7,6 +7,7 @@ import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RatIcon from './RatIcon';
+import RatBoolIcon from './RatBoolIcon';
 import RatMultiSelect from './RatMultiSelect';
 import RatLocales from '../contexts/RatLocales';
 import RatUser from '../contexts/RatUser';
@@ -36,7 +37,7 @@ function RatGrid(props: GridProps) {
     )?.languageCulture || 'en-us';
 
     const getGridData = useCallback(function () {
-        axios.post("/entity/getalltotable", { entityName: props.entityName })
+        axios.post("/entity/getAllToTable", { entityName: props.entityName })
             .then(function (response) {
                 setRawColumns(response.data.columns);
                 setGridData(response.data.data);
@@ -52,7 +53,7 @@ function RatGrid(props: GridProps) {
     }, [location.pathname, navigate]);
 
     const deleteEntry = useCallback(function (id: number) {
-        axios.post("/entity/deleteentity", { entityName: props.entityName, id: id })
+        axios.post("/entity/deleteEntity", { entityName: props.entityName, id: id })
             .then(function () {
                 getGridData();
             })
@@ -78,12 +79,7 @@ function RatGrid(props: GridProps) {
                     break;
                 }
                 case "Boolean": {
-                    columnObject["renderCell"] = ({ value }) => (
-                        <>
-                            {value ? <RatIcon name="task_alt" />
-                                : <RatIcon name="radio_button_unchecked" />}
-                        </>
-                    );
+                    columnObject["renderCell"] = ({ value }) => <RatBoolIcon value={value} />;
                     columnObject["width"] = 150;
                     break;
                 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import { createContext } from 'react';
 import { AppContext } from '../types';
 
 const defaultValue: AppContext = {
@@ -8,6 +8,6 @@ const defaultValue: AppContext = {
     toggleAdminMenu: () => void 0,
 };
 
-const RatAppContext = React.createContext<AppContext>(defaultValue);
+const RatAppContext = createContext<AppContext>(defaultValue);
 
 export default RatAppContext;

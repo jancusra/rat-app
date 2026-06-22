@@ -45,7 +45,7 @@ function RatForm(props: RatFormProps) {
     }
 
     return (
-        <form className={`rat-form-box ${props.class ? props.class : ""}`} onSubmit={handleSubmit}>
+        <form className={`rat-form-box ${props.class ?? ""}`} onSubmit={handleSubmit}>
             {props.children}
             <div className="form-final-buttons">
                 <Button
@@ -89,7 +89,7 @@ type RatFormProps = {
     formData: RatFormData | Array<FormEntry>;
     buttonContent: string;
     showCancelButton?: boolean;
-    showBackButton: boolean;
+    showBackButton?: boolean;
     children: ReactNode;
     formSubmit: () => void;
     formErrors?: (errors: Array<ValidationResult>) => void;

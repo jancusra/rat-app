@@ -4,7 +4,7 @@ import RatUser from '../contexts/RatUser';
 import RatLocales from '../contexts/RatLocales';
 import RatAppContext from '../contexts/RatAppContext';
 import RatIcon from '../components/RatIcon';
-import { IsAdminLayout } from '../Utils';
+import { isAdminLayout } from '../Utils';
 
 function RatWebHeader() {
     const user = useContext(RatUser);
@@ -12,11 +12,11 @@ function RatWebHeader() {
     const { setLanguage, toggleAdminMenu } = useContext(RatAppContext);
     const location = useLocation();
     const navigate = useNavigate();
-    const adminLayout = IsAdminLayout(location.pathname);
+    const adminLayout = isAdminLayout(location.pathname);
 
     function flagSrc(code: string): string | undefined {
         try {
-            return require("./../images/flags/" + code + ".svg");
+            return require(`../images/flags/${code}.svg`);
         } catch {
             return undefined;
         }
@@ -64,7 +64,7 @@ function RatWebHeader() {
             {Array.isArray(user.data.languages) && user.data.languages.length > 1 ?
                 <div className="language-panel">
                     {user.data.languages.map((language) => {
-                        let src = flagSrc(language.twoLetterCode);
+                        const src = flagSrc(language.twoLetterCode);
                         return src ?
                             <img key={language.name} className="language-image"
                                 role="button" tabIndex={0}

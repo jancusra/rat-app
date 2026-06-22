@@ -1,6 +1,6 @@
-import React from 'react';
+import { createContext } from 'react';
 import { LocaleContext } from '../types';
 
-const RatLocales = React.createContext<LocaleContext>({});
+const RatLocales = createContext<LocaleContext>({});
 
 export default RatLocales;

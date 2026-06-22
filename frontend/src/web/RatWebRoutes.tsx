@@ -1,11 +1,11 @@
-import React from 'react';
+import { lazy } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import RatPluginRoutes from '../plugins/RatPluginRoutes';
 
-const Home = React.lazy(() => import('./RatHome'));
-const Installing = React.lazy(() => import('./init/RatInstalling'));
-const Auth = React.lazy(() => import('./users/RatAuthForm'));
-const NotFound = React.lazy(() => import('./NotFound'));
+const Home = lazy(() => import('./RatHome'));
+const Installing = lazy(() => import('./init/RatInstalling'));
+const Auth = lazy(() => import('./users/RatAuthForm'));
+const NotFound = lazy(() => import('./NotFound'));
 
 function RatWebRoutes() {
     return (

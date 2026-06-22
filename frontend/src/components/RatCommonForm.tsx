@@ -17,7 +17,7 @@ function RatCommonForm(props: CommonFormProps) {
 
     const getFormData = useCallback(function () {
         if (props.entityId) {
-            axios.post("/entity/getentity/", { id: Number(props.entityId), entityName: props.entityName })
+            axios.post("/entity/getEntity", { id: Number(props.entityId), entityName: props.entityName })
                 .then(function (response) {
                     setFormData(response.data);
 
@@ -77,7 +77,7 @@ function RatCommonForm(props: CommonFormProps) {
     return (
         <RatForm
             class="rat-common-form"
-            apiSource="/entity/saveentity"
+            apiSource="/entity/saveEntity"
             entityName={props.entityName}
             buttonContent={locales.Save}
             showCancelButton={true}
