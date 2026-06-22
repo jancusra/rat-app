@@ -4,8 +4,7 @@ import RatPluginRoutes from '../plugins/RatPluginRoutes';
 
 const Home = React.lazy(() => import('./RatHome'));
 const Installing = React.lazy(() => import('./init/RatInstalling'));
-const Login = React.lazy(() => import('./users/RatLoginForm'));
-const Register = React.lazy(() => import('./users/RatRegisterForm'));
+const Auth = React.lazy(() => import('./users/RatAuthForm'));
 const NotFound = React.lazy(() => import('./NotFound'));
 
 function RatWebRoutes() {
@@ -13,8 +12,8 @@ function RatWebRoutes() {
         <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/installing" element={<Installing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Auth mode="login" />} />
+            <Route path="/register" element={<Auth mode="register" />} />
             {RatPluginRoutes}
             <Route path="*" element={<NotFound />} />
         </Routes>

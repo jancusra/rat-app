@@ -6,11 +6,17 @@ import RatUser from '../../contexts/RatUser';
 import RatLocales from '../../contexts/RatLocales';
 import { FormControlState, RatFormData } from '../../components/types';
 
-function RatLoginForm() {
+type Props = {
+    mode: 'login' | 'register';
+};
+
+function RatAuthForm({ mode }: Props) {
     const [formData, setState] = useState<RatFormData>({});
     const user = useContext(RatUser);
     const locales = useContext(RatLocales);
     const navigate = useNavigate();
+
+    const isRegister = mode === 'register';
 
     function updateField(data: FormControlState) {
         setState({
@@ -26,9 +32,9 @@ function RatLoginForm() {
 
     return (
         <RatForm
-            class="rat-login-box"
-            apiSource="/auth/authenticate"
-            buttonContent={locales.Login}
+            class={isRegister ? "rat-register-box" : "rat-login-box"}
+            apiSource={isRegister ? "/user/register" : "/auth/authenticate"}
+            buttonContent={isRegister ? locales.Register : locales.Login}
             showBackButton={true}
             formData={formData}
             formSubmit={formSubmit}>
@@ -43,8 +49,15 @@ function RatLoginForm() {
                 label={locales.Password}
                 value={String(formData.password ?? '')}
                 callback={updateField} />
+            {isRegister &&
+                <RatTextField
+                    name="passwordVerify"
+                    type="password"
+                    label={locales.PasswordVerify}
+                    value={String(formData.passwordVerify ?? '')}
+                    callback={updateField} />}
         </RatForm>
     );
 }
 
-export default RatLoginForm;
+export default RatAuthForm;
