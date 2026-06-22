@@ -89,8 +89,11 @@ function RatGrid(props: GridProps) {
         }
         case "DateTime": {
           columnObject["valueGetter"] = (value: string) => {
+            if (!value) {
+              return "";
+            }
             const date = new Date(value);
-            return date.toLocaleString(dateCulture);
+            return isNaN(date.getTime()) ? "" : date.toLocaleString(dateCulture);
           };
           columnObject["flex"] = 1;
           break;

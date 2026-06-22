@@ -84,15 +84,24 @@ function RatApp() {
                 <RatLocales.Provider value={locales}>
                     <BrowserRouter>
                         <RatWebHeader />
-                        <RatErrorBoundary>
-                            <Suspense fallback={<div>Loading...</div>}>
-                                <RatLayout userData={userData} userLoaded={userLoaded} />
-                            </Suspense>
-                        </RatErrorBoundary>
+                        <RatRoutedContent userData={userData} userLoaded={userLoaded} />
                     </BrowserRouter>
                 </RatLocales.Provider>
             </RatAppContext.Provider>
         </RatUser.Provider>
+    );
+}
+
+// Inside the router so the error boundary resets on navigation (resetKey = pathname).
+function RatRoutedContent(props: RatLayoutProps) {
+    const location = useLocation();
+
+    return (
+        <RatErrorBoundary resetKey={location.pathname}>
+            <Suspense fallback={<div>Loading...</div>}>
+                <RatLayout userData={props.userData} userLoaded={props.userLoaded} />
+            </Suspense>
+        </RatErrorBoundary>
     );
 }
 

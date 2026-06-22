@@ -4,6 +4,7 @@ import { LocaleContext } from '../types';
 
 type ErrorBoundaryProps = {
     children: ReactNode;
+    resetKey?: string; // changing this (e.g. route) clears a previous error
 }
 
 type ErrorBoundaryState = {
@@ -21,6 +22,12 @@ class RatErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState>
 
     componentDidCatch(error: Error, info: ErrorInfo) {
         console.error("Unhandled render error", error, info);
+    }
+
+    componentDidUpdate(prevProps: ErrorBoundaryProps) {
+        if (this.state.hasError && prevProps.resetKey !== this.props.resetKey) {
+            this.setState({ hasError: false });
+        }
     }
 
     render() {

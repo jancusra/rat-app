@@ -1,7 +1,29 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import axios from 'axios';
+import RatIcon from './RatIcon';
 import RatLocales from '../contexts/RatLocales';
 import { FormEntry } from './types';
+
+function renderValue(entry: FormEntry) {
+    if (typeof entry.value === "boolean") {
+        return entry.value ? <RatIcon name="task_alt" /> : <RatIcon name="radio_button_unchecked" />;
+    }
+
+    const hasOptions = entry.selectOptions != null && Object.keys(entry.selectOptions).length > 0;
+
+    if (hasOptions && Array.isArray(entry.value)) {
+        return entry.value
+            .map((id) => entry.selectOptions[id as number])
+            .filter(Boolean)
+            .join(", ");
+    }
+
+    if (hasOptions && typeof entry.value === "number") {
+        return entry.selectOptions[entry.value];
+    }
+
+    return entry.value;
+}
 
 function RatCommonDetail(props: CommonDetailProps) {
     const [detailData, setDetailData] = useState<Array<FormEntry>>([]);
@@ -32,10 +54,7 @@ function RatCommonDetail(props: CommonDetailProps) {
                         return (
                             <tr key={detailEntry.name}>
                                 <td className="detail-name">{locales[detailEntry.name]}:</td>
-                                {detailEntry.selectOptions != null && Object.keys(detailEntry.selectOptions).length > 0 
-                                    && typeof detailEntry.value === "number"
-                                    ? <td>{detailEntry.selectOptions[detailEntry.value]}</td>
-                                    : <td>{detailEntry.value}</td>}
+                                <td>{renderValue(detailEntry)}</td>
                             </tr>
                         );
                     return null
