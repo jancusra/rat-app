@@ -152,6 +152,12 @@ namespace Rat.Services
                     HashTypeId = (int)_userOptions.Value.PasswordHashing,
                     CreatedUTC = DateTime.UtcNow
                 });
+
+                await _repository.InsertAsync(new UserUserRoleMap
+                {
+                    UserId = newUser.Id,
+                    UserRoleId = (int)RoleType.RegisteredUsers
+                });
             });
 
             return true;

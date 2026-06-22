@@ -40,7 +40,7 @@ namespace Rat.Endpoint.Controllers
         /// </summary>
         /// <param name="model">model: entity name, language and entity data</param>
         /// <returns>validation errors or OK result</returns>
-        [HttpPost]
+        [HttpPut]
         public virtual async Task<IActionResult> SaveEntity([FromBody] SaveEntityDto model)
         {
             var validationResult = await _entityValidationService.ValidateCommonEntityAsync(
@@ -62,7 +62,7 @@ namespace Rat.Endpoint.Controllers
         /// </summary>
         /// <param name="model">model: entity ID and name</param>
         /// <returns>OK result</returns>
-        [HttpPost]
+        [HttpDelete]
         public virtual async Task<IActionResult> DeleteEntity([FromBody] DeleteEntityDto model)
         {
             await _entityService.DeleteEntityAsync(model.EntityName, model.Id);

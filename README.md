@@ -1,3 +1,11 @@
+> **Note:** This is a demo showcase of my code. Some details are not polished to
+> full functional perfection, but the project works as a whole. It is mainly aimed
+> at testing generic (common) entities in C# and exploring how far they can be
+> pushed in terms of complexity, with the goal of keeping the frontend as simple
+> as possible.
+
+<br>
+
 # Quick start
 
 Clone the repository and open its folder:
@@ -36,6 +44,7 @@ docker compose down -v
 ```
 
 <br>
+
 <br>
 
 # Rat.Api - Web server API template (my app architecture)

@@ -27,7 +27,7 @@ function RatForm(props: RatFormProps) {
             ? { entityName: props.entityName, data: reducedFormData, languageId }
             : props.formData;
 
-        axios.post(props.apiSource, data)
+        axios.request({ method: props.method ?? "post", url: props.apiSource, data })
             .then(function (result) {
                 if (props.formErrors && result.data.errors) {
                     props.formErrors(result.data.errors);
@@ -85,6 +85,7 @@ export default RatForm;
 type RatFormProps = {
     entityName?: string;
     apiSource: string;
+    method?: 'post' | 'put' | 'patch';
     class?: string;
     formData: RatFormData | Array<FormEntry>;
     buttonContent: string;

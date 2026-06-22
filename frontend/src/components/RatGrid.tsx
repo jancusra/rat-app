@@ -53,7 +53,7 @@ function RatGrid(props: GridProps) {
     }, [location.pathname, navigate]);
 
     const deleteEntry = useCallback(function (id: number) {
-        axios.post("/entity/deleteEntity", { entityName: props.entityName, id: id })
+        axios.delete("/entity/deleteEntity", { data: { entityName: props.entityName, id: id } })
             .then(function () {
                 getGridData();
             })

@@ -78,6 +78,7 @@ function RatCommonForm(props: CommonFormProps) {
         <RatForm
             class="rat-common-form"
             apiSource="/entity/saveEntity"
+            method="put"
             entityName={props.entityName}
             buttonContent={locales.Save}
             showCancelButton={true}

@@ -22,6 +22,7 @@ namespace Rat.Endpoint.Controllers
         /// </summary>
         /// <param name="languageId">language ID</param>
         /// <returns>dictionary of all filtered localizations</returns>
+        [HttpGet]
         public virtual async Task<IActionResult> GetByLanguageId(int languageId)
         {
             // Group by name so duplicate localization names for the same language don't throw;
