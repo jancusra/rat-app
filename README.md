@@ -1,3 +1,43 @@
+# Quick start
+
+Clone the repository and open its folder:
+
+```
+git clone https://github.com/jancusra/rat-app
+cd rat-app
+```
+
+Then spin up the whole stack (database, API and React client) with a single command:
+
+```
+docker compose up
+```
+
+Once the containers are up, the app is available at:
+
+* **Web client:** http://localhost:3000 (or `http://<LAN-IP>:3000` from another device)
+* **API:** http://localhost:47050 (or `http://<LAN-IP>:47050` from another device)
+
+A default administrator user is seeded automatically:
+
+* **E-mail:** `jra@gmail.com`
+* **Password:** `test123`
+
+Stop the stack (keeps the database data):
+
+```
+docker compose down
+```
+
+Stop the stack and wipe everything, including the database volume:
+
+```
+docker compose down -v
+```
+
+<br>
+<br>
+
 # Rat.Api - Web server API template (my app architecture)
 
 * Onion architecture with clearly separated Core, Infrastructure and API layers
@@ -17,10 +57,18 @@
 # Rat React client application
 
 * Strongly typed with TypeScript
+* Single-page application with client-side routing (React Router)
+* Lazy-loaded, code-split routes for a fast initial load
 * Separate public web and administration layouts
+* Material UI components with data-grid based entity tables
 * Multi-language support
+* Cookie-based JWT authentication with login and registration
 * Common forms and controls with built-in validation
+* Metadata-driven grids and forms generated from server entity definitions
 * User and role management
 * Table of logged events
 * Super-fast administration view definition
+* Extensible plugin system for custom pages and routes
+* Graceful error handling with a route-aware error boundary
+* Accessible, keyboard-navigable UI
 * Optimized production build with a bundle report page

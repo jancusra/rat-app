@@ -1,4 +1,5 @@
-html, body,
+html,
+body,
 #root {
     height: 100%;
     width: 100%;
@@ -82,15 +83,19 @@ html, body,
 .material-icons.debug {
     color: #808080;
 }
+
 .material-icons.information {
     color: #6699ff;
 }
+
 .material-icons.warning {
     color: #ffcc00;
 }
+
 .material-icons.error {
     color: #cc0000;
 }
+
 .material-icons.fatal {
     color: #cc0000;
 }

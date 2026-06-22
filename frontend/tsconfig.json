@@ -1,7 +1,10 @@
 {
     "compilerOptions": {
         "rootDir": "src",
-        "lib": ["es2020", "dom"],
+        "lib": [
+            "es2020",
+            "dom"
+        ],
         "noEmit": true,
         "strict": true,
         "skipLibCheck": true,
@@ -10,7 +13,7 @@
         "jsx": "react-jsx"
     },
     "include": [
-        "./src/**/*", 
+        "./src/**/*",
         "src/custom.d.ts"
     ],
     "exclude": [
