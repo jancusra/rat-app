@@ -25,9 +25,12 @@ namespace Rat.Endpoint.Controllers
         }
 
         /// <summary>
-        /// Retrieving data about the currently logged in user
+        /// Retrieving data about the currently logged in user.
+        /// Allows anonymous access: an unauthenticated caller gets an empty email,
+        /// IsAdmin false and the full list of languages.
         /// </summary>
         /// <returns>logged in user data</returns>
+        [AllowAnonymous]
         [HttpGet]
         public virtual async Task<IActionResult> GetCurrentUserData()
         {

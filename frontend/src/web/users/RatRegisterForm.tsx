@@ -38,10 +38,12 @@ function RatRegisterForm() {
                 callback={updateField} />
             <RatTextField
                 name="password"
+                type="password"
                 label={locales.Password}
                 callback={updateField} />
             <RatTextField
                 name="passwordVerify"
+                type="password"
                 label={locales.PasswordVerify}
                 callback={updateField} />
         </RatForm>

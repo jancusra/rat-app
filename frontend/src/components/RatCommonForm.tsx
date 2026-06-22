@@ -16,15 +16,18 @@ function RatCommonForm(props: CommonFormProps) {
     const navigate = useNavigate();
 
     function getFormData() {
-        if (props.entityId)
-        {
+        if (props.entityId) {
             axios.post("/entity/getentity/", { id: parseInt(props.entityId), entityName: props.entityName })
                 .then(function (response) {
                     setFormData(response.data);
 
+                    const initialValidation: ValidationData = {};
+
                     response.data.forEach(function (entry: FormEntry) {
-                        validationData[entry.name] = { error: false, message: '' };
+                        initialValidation[entry.name] = { error: false, message: '' };
                     });
+
+                    setValidationData(initialValidation);
                 });
         }
     }
@@ -36,16 +39,23 @@ function RatCommonForm(props: CommonFormProps) {
             }
             return obj;
         });
-      
+
         setFormData(newState);
     }
 
     function formErrors(errors: Array<ValidationResult>) {
-        errors.forEach(function (error) {
-            setValidationData({
-                ...validationData,
-                [error.fieldName]: { error: true, message: error.message }
+        setValidationData(function (prev) {
+            const newState: ValidationData = {};
+
+            Object.keys(prev).forEach(function (name) {
+                newState[name] = { error: false, message: '' };
             });
+
+            errors.forEach(function (error) {
+                newState[error.fieldName] = { error: true, message: error.message };
+            });
+
+            return newState;
         });
     }
 
@@ -86,8 +96,8 @@ function RatCommonForm(props: CommonFormProps) {
                             name={formEntry.name}
                             label={locales[formEntry.name]}
                             value={formEntry.value == null ? '' : formEntry.value as string}
-                            error={validationData[formEntry.name].error}
-                            errorMessage={validationData[formEntry.name].message}
+                            error={validationData[formEntry.name]?.error}
+                            errorMessage={validationData[formEntry.name]?.message}
                             callback={updateField} />,
                         'Enum': <RatSelect
                             key={formEntry.name}
@@ -103,7 +113,7 @@ function RatCommonForm(props: CommonFormProps) {
                             value={formEntry.value as Array<number>}
                             selectData={formEntry.selectOptions}
                             callback={updateField} />
-                    } [formEntry.entryType]
+                    }[formEntry.entryType]
                 );
             })}
         </RatForm>

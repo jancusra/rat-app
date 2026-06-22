@@ -36,7 +36,7 @@ function RatForm(props: RatFormProps) {
                 }
             })
             .catch(function (error) {
-                setMessage(error.response.data.ResultReason);
+                setMessage(error.response?.data?.ResultReason ?? error.message);
             });
     }
 

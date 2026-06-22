@@ -38,6 +38,7 @@ function RatLoginForm() {
                 callback={updateField} />
             <RatTextField
                 name="password"
+                type="password"
                 label={locales.Password}
                 callback={updateField} />
         </RatForm>

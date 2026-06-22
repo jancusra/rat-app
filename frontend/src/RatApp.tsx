@@ -10,6 +10,7 @@ import { IsAdminLayout, GetCurrentLanguageId } from './Utils';
 import { LocaleContext, UserData, UserContext } from './types';
 
 axios.defaults.baseURL = "http://localhost:47050/api";
+axios.defaults.withCredentials = true; // send the HttpOnly auth cookie cross-origin
 
 function RatApp() {
     const [userData, setUserData] = useState<UserData>({});
@@ -43,9 +44,9 @@ function RatApp() {
         <RatUser.Provider value={userContext}>
             <RatLocales.Provider value={locales}>
                 <BrowserRouter>
-                    <RatWebHeader/>
+                    <RatWebHeader />
                     <Suspense fallback={<div>Loading...</div>}>
-                    { IsAdminLayout() ? <RatAdminRoutes/> : <RatWebRoutes/> }
+                        {IsAdminLayout() ? <RatAdminRoutes /> : <RatWebRoutes />}
                     </Suspense>
                 </BrowserRouter>
             </RatLocales.Provider>

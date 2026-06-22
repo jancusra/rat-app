@@ -4,8 +4,8 @@ import { FormControlState } from './types';
 function RatTextField(props: TextFieldProps) {
     function onChange(e: React.ChangeEvent<HTMLInputElement>) {
         props.callback({
-            name: e.target.name, 
-            value: e.target.value 
+            name: e.target.name,
+            value: e.target.value
         });
     }
 
@@ -13,6 +13,7 @@ function RatTextField(props: TextFieldProps) {
         <TextField
             className="form-input"
             variant="outlined"
+            type={props.type}
             name={props.name}
             label={props.label}
             placeholder={props.label}
@@ -28,6 +29,7 @@ export default RatTextField;
 type TextFieldProps = {
     name: string;
     label: string;
+    type?: string;
     value?: string;
     error?: boolean;
     errorMessage?: string;

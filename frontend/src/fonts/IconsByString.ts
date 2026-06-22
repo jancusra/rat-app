@@ -1,4 +1,4 @@
-export const IconsByString = {
+export const IconsByString: { [key: string]: string } = {
     Debug: "bug_report",
     Information: "info",
     Warning: "warning",

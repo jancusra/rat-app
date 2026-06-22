@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridColumnVisibilityModel } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
 import OpenInBrowserIcon from '@mui/icons-material/OpenInBrowser';
 import EditIcon from '@mui/icons-material/Edit';
@@ -16,9 +16,9 @@ function RatGrid(props: GridProps) {
   const [paginationModel, setPaginationModel] = useState({ pageSize: 15, page: 0 });
   const [columns, setColumns] = useState<Array<GridColDef>>([]);
   const [gridData, setGridData] = useState([]);
+  const [hiddenColumns, setHiddenColumns] = useState<GridColumnVisibilityModel>({});
   const locales = useContext(RatLocales);
   const navigate = useNavigate();
-  const hiddenColumns = {}, optionsData = {};
 
   function lowerFirstLetter(str: string) {
     return str.charAt(0).toLowerCase() + str.slice(1);
@@ -40,28 +40,29 @@ function RatGrid(props: GridProps) {
     axios.post("/entity/getalltotable", { entityName: props.entityName })
       .then(function (response) {
         let columnsData: Array<GridColDef> = [];
-        
+        const visibilityModel: GridColumnVisibilityModel = {};
+        const optionsData: { [field: string]: SelectOptions } = {};
+
         response.data.columns.forEach(function (column: GridColumn) {
-          let columnObject = {
+          let columnObject: GridColDef = {
             field: lowerFirstLetter(column.name),
             headerName: column.entryType != "EnumIcon" ? locales[column.name] : ""
           };
 
-          if (columnObject.field == "id" || column.hidden)
-          {
-            hiddenColumns[columnObject.field] = false;
+          if (columnObject.field == "id" || column.hidden) {
+            visibilityModel[columnObject.field] = false;
           }
 
-          switch(column.entryType) {
+          switch (column.entryType) {
             case "String": {
               columnObject["flex"] = 1;
               break;
             }
             case "Boolean": {
-              columnObject["renderCell"] = ({value}) => (
+              columnObject["renderCell"] = ({ value }) => (
                 <>
-                { value ? <RatIcon name="task_alt" />
-                    : <RatIcon name="radio_button_unchecked" /> }
+                  {value ? <RatIcon name="task_alt" />
+                    : <RatIcon name="radio_button_unchecked" />}
                 </>
               );
               columnObject["width"] = 150;
@@ -75,25 +76,25 @@ function RatGrid(props: GridProps) {
               columnObject["flex"] = 1;
               break;
             }
-            case "Enum": { 
+            case "Enum": {
               optionsData[columnObject.field] = column.selectOptions;
-              columnObject["valueGetter"] = (value: string) => {
+              columnObject["valueGetter"] = (value: number) => {
                 return optionsData[columnObject.field][value];
               };
               columnObject["flex"] = 1;
-              break; 
+              break;
             }
             case "EnumIcon": {
               optionsData[columnObject.field] = column.selectOptions;
-              columnObject["renderCell"] = ({value}) => (
-                <RatIcon class={lowerFirstLetter(optionsData[columnObject.field][value])} 
+              columnObject["renderCell"] = ({ value }) => (
+                <RatIcon class={lowerFirstLetter(optionsData[columnObject.field][value])}
                   name={IconsByString[optionsData[columnObject.field][value]]} />
               );
               columnObject["width"] = 50;
               break;
             }
             case "MappedMultiSelect": {
-              columnObject["renderCell"] = ({row}) => (
+              columnObject["renderCell"] = ({ row }) => (
                 <RatMultiSelect
                   name={columnObject.field}
                   readOnly
@@ -105,7 +106,7 @@ function RatGrid(props: GridProps) {
               break;
             }
             case "ShowDetailButton": {
-              columnObject["renderCell"] = ({row}) => (
+              columnObject["renderCell"] = ({ row }) => (
                 <Button variant="contained"
                   color="primary"
                   startIcon={<OpenInBrowserIcon />}
@@ -117,7 +118,7 @@ function RatGrid(props: GridProps) {
               break;
             }
             case "EditInViewButton": {
-              columnObject["renderCell"] = ({row}) => (
+              columnObject["renderCell"] = ({ row }) => (
                 <Button variant="contained"
                   color="secondary"
                   startIcon={<EditIcon />}
@@ -130,7 +131,7 @@ function RatGrid(props: GridProps) {
               break;
             }
             case "DeleteButton": {
-              columnObject["renderCell"] = ({row}) => (
+              columnObject["renderCell"] = ({ row }) => (
                 <Button variant="contained"
                   color="error"
                   startIcon={<DeleteIcon />}
@@ -143,7 +144,7 @@ function RatGrid(props: GridProps) {
               break;
             }
             default: {
-              break; 
+              break;
             }
           }
 
@@ -160,27 +161,25 @@ function RatGrid(props: GridProps) {
 
         setColumns(columnsData);
         setGridData(response.data.data);
-    });
+        setHiddenColumns(visibilityModel);
+      });
   }
 
   useEffect(() => {
-      getGridData();
+    getGridData();
   }, [])
 
   return (
-      <DataGrid
-          sx={{ width: '100%', height: 750, margin: '10px 0 0' }}
-          rows={gridData}
-          columns={columns}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          pageSizeOptions={[15, 25, 50]}
-          initialState= {{
-            columns: {
-              columnVisibilityModel: hiddenColumns
-            }
-          }}
-      />
+    <DataGrid
+      sx={{ width: '100%', height: 750, margin: '10px 0 0' }}
+      rows={gridData}
+      columns={columns}
+      paginationModel={paginationModel}
+      onPaginationModelChange={setPaginationModel}
+      pageSizeOptions={[15, 25, 50]}
+      columnVisibilityModel={hiddenColumns}
+      onColumnVisibilityModelChange={setHiddenColumns}
+    />
   );
 }
 
