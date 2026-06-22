@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import List from '@mui/material/List';
-import RatTreeMenuItem from '../components/RatTreeMenuItem';
+import RatTreeMenuItem from './RatTreeMenuItem';
 import { TreeMenuItem } from './types';
 
 function RatTreeMenu(props: TreeMenuProps) {

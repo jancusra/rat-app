@@ -1,5 +1,5 @@
 {
-  "name": "rat-react",
+  "name": "rat-app-frontend",
   "version": "0.1.0",
   "main": "index.js",
   "homepage": "/",
@@ -16,13 +16,8 @@
   },
   "scripts": {
     "start": "webpack serve --mode development",
-    "build": "webpack --mode production"
-  },
-  "eslintConfig": {
-    "extends": [
-      "rat-react",
-      "rat-react/jest"
-    ]
+    "build": "webpack --mode production",
+    "typecheck": "tsc --noEmit"
   },
   "browserslist": {
     "production": [
@@ -48,6 +43,7 @@
     "css-loader": "^7.1.2",
     "html-webpack-plugin": "^5.6.0",
     "style-loader": "^4.0.0",
+    "typescript": "^5.9.3",
     "webpack": "^5.94.0",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^5.1.4",

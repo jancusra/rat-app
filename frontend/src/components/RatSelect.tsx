@@ -39,7 +39,7 @@ function RatSelect(props: SelectProps) {
                     </MenuItem>}
                 {
                     Object.keys(props.selectData).map((key) => (
-                        <MenuItem key={key} value={key}>{props.selectData[key]}</MenuItem>
+                        <MenuItem key={key} value={key}>{props.selectData[Number(key)]}</MenuItem>
                     ))
                 }
             </Select>

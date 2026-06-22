@@ -11,9 +11,21 @@ export type RatFormData = {
     [key: string]: number | string | boolean | Array<number> | Array<string>
 }
 
+// Entry kinds shared by form fields and grid columns
+export type EntryType =
+    | "String"
+    | "Boolean"
+    | "DateTime"
+    | "Enum"
+    | "EnumIcon"
+    | "MappedMultiSelect"
+    | "ShowDetailButton"
+    | "EditInViewButton"
+    | "DeleteButton";
+
 // Shared shape for form fields and grid columns
 export type EntityField = {
-    entryType: string;
+    entryType: EntryType;
     excluded: boolean;
     hidden: boolean;
     name: string;

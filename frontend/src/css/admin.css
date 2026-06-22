@@ -1,8 +1,7 @@
 html, body,
-#root { 
-    height: 100%; 
-    width: 100%; 
-    /*background: #494b5a;*/
+#root {
+    height: 100%;
+    width: 100%;
 }
 
 /* menu tree */
@@ -81,17 +80,17 @@ html, body,
 
 /* colored icons */
 .material-icons.debug {
-    color: #808080
+    color: #808080;
 }
 .material-icons.information {
-    color: #6699ff
+    color: #6699ff;
 }
 .material-icons.warning {
-    color: #ffcc00
+    color: #ffcc00;
 }
 .material-icons.error {
-    color: #cc0000
+    color: #cc0000;
 }
 .material-icons.fatal {
-    color: #cc0000
+    color: #cc0000;
 }

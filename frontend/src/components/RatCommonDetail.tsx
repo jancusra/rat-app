@@ -30,8 +30,7 @@ function RatCommonDetail(props: CommonDetailProps) {
     const locales = useContext(RatLocales);
 
     const getDetailData = useCallback(function () {
-        if (props.entityId)
-        {
+        if (props.entityId) {
             axios.post("/entity/getentity/", { id: parseInt(props.entityId), entityName: props.entityName })
                 .then(function (response) {
                     setDetailData(response.data);

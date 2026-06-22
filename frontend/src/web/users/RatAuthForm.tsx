@@ -6,20 +6,16 @@ import RatUser from '../../contexts/RatUser';
 import RatLocales from '../../contexts/RatLocales';
 import { FormControlState, RatFormData } from '../../components/types';
 
-type Props = {
-    mode: 'login' | 'register';
-};
-
-function RatAuthForm({ mode }: Props) {
-    const [formData, setState] = useState<RatFormData>({});
+function RatAuthForm(props: AuthFormProps) {
+    const [formData, setFormData] = useState<RatFormData>({});
     const user = useContext(RatUser);
     const locales = useContext(RatLocales);
     const navigate = useNavigate();
 
-    const isRegister = mode === 'register';
+    const isRegister = props.mode === 'register';
 
     function updateField(data: FormControlState) {
-        setState({
+        setFormData({
             ...formData,
             [data.name]: data.value
         });
@@ -61,3 +57,7 @@ function RatAuthForm({ mode }: Props) {
 }
 
 export default RatAuthForm;
+
+type AuthFormProps = {
+    mode: 'login' | 'register';
+}

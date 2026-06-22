@@ -2,9 +2,9 @@
     "compilerOptions": {
         "rootDir": "src",
         "lib": ["es2020", "dom"],
-        "noImplicitThis": true,
         "noEmit": true,
-        "strictNullChecks": true,
+        "strict": true,
+        "skipLibCheck": true,
         "esModuleInterop": true,
         "allowJs": true,
         "jsx": "react-jsx"

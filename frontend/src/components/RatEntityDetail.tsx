@@ -1,19 +1,19 @@
 import { useParams } from 'react-router-dom';
 import RatCommonDetail from './RatCommonDetail';
 
-type Props = {
-    entityName: string;
-};
-
-function RatEntityDetail({ entityName }: Props) {
+function RatEntityDetail(props: EntityDetailProps) {
     const params = useParams();
 
     return (
         <RatCommonDetail
-            entityName={entityName}
+            entityName={props.entityName}
             entityId={params.id}
         />
     );
 }
 
 export default RatEntityDetail;
+
+type EntityDetailProps = {
+    entityName: string;
+}

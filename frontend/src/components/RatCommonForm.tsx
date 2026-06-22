@@ -1,11 +1,11 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import RatForm from '../components/RatForm';
-import RatCheckbox from '../components/RatCheckbox';
-import RatMultiSelect from '../components/RatMultiSelect';
-import RatSelect from '../components/RatSelect';
-import RatTextField from '../components/RatTextField';
+import RatForm from './RatForm';
+import RatCheckbox from './RatCheckbox';
+import RatMultiSelect from './RatMultiSelect';
+import RatSelect from './RatSelect';
+import RatTextField from './RatTextField';
 import RatLocales from '../contexts/RatLocales';
 import { FormControlState, FormEntry, ValidationResult } from './types';
 
@@ -99,7 +99,7 @@ function RatCommonForm(props: CommonFormProps) {
                             key={formEntry.name}
                             name={formEntry.name}
                             label={locales[formEntry.name]}
-                            value={formEntry.value == null ? '' : formEntry.value as string}
+                            value={formEntry.value as string}
                             error={validationData[formEntry.name]?.error}
                             errorMessage={validationData[formEntry.name]?.message}
                             callback={updateField} />;
