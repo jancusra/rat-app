@@ -15,7 +15,7 @@ function RatForm(props: RatFormProps) {
 
     function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
         e.preventDefault();
-        let reducedFormData: RatFormData = {};
+        const reducedFormData: RatFormData = {};
 
         if (Array.isArray(props.formData)) {
             props.formData.forEach(function (formEntry) {
@@ -23,7 +23,7 @@ function RatForm(props: RatFormProps) {
             });
         }
 
-        let data = props.entityName
+        const data = props.entityName
             ? { entityName: props.entityName, data: reducedFormData, languageId }
             : props.formData;
 

@@ -21,21 +21,23 @@ function RatHome() {
             });
     }
 
-    return <div className="action-buttons">
-                <img src={ratImage} className="rat-image" alt="Rat logo" />
-                {!user.data.email ?
-                    <>
-                        <Button variant="contained" onClick={() => navigate("/login")}>
-                            {locales.Login}
-                        </Button>
-                        <Button variant="outlined" onClick={() => navigate("/register")}>
-                            {locales.Register}
-                        </Button>
-                    </>
+    return (
+        <div className="action-buttons">
+            <img src={ratImage} className="rat-image" alt="Rat logo" />
+            {!user.data.email ?
+                <>
+                    <Button variant="contained" onClick={() => navigate("/login")}>
+                        {locales.Login}
+                    </Button>
+                    <Button variant="outlined" onClick={() => navigate("/register")}>
+                        {locales.Register}
+                    </Button>
+                </>
                 : <Button variant="contained" onClick={logout}>
                     {locales.Logout}
-                  </Button>}
-            </div>
+                </Button>}
+        </div>
+    );
 }
 
 export default RatHome;

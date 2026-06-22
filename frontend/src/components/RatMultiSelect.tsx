@@ -11,7 +11,7 @@ function RatMultiSelect(props: MultiSelectProps) {
     function onChange(_e: React.SyntheticEvent, value: Array<SelectOption>) {
         setSelectedOptionValues(value);
 
-        let ids = value.map(function (x: SelectOption) {
+        const ids = value.map(function (x: SelectOption) {
             return x.id;
         });
 
@@ -24,12 +24,12 @@ function RatMultiSelect(props: MultiSelectProps) {
     }
 
     useEffect(() => {
-        let allOptions: Array<SelectOption> = [];
-        let selectedOptions: Array<SelectOption> = [];
+        const allOptions: Array<SelectOption> = [];
+        const selectedOptions: Array<SelectOption> = [];
 
-        for (let key in props.selectData) {
-            let id = props.stringValues ? props.selectData[key] : Number(key);
-            let option: SelectOption = { id: id, name: props.selectData[key] };
+        for (const key in props.selectData) {
+            const id = props.stringValues ? props.selectData[key] : Number(key);
+            const option: SelectOption = { id: id, name: props.selectData[key] };
             allOptions.push(option);
 
             if ((props.value as Array<number | string>)?.includes(id)) {

@@ -44,7 +44,7 @@ function RatWebHeader() {
                 <div className="logged-user" role="button" tabIndex={0}
                     onClick={() => navigate("/")}
                     onKeyDown={onActivateKey(() => navigate("/"))}>
-                    Logged as <span className="logged-user-email">{user.data.email}</span>
+                    {locales.LoggedAs} <span className="logged-user-email">{user.data.email}</span>
                 </div>
                 : null}
             {user.data.isAdmin && !adminLayout ?

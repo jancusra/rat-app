@@ -47,7 +47,7 @@ function RatGrid(props: GridProps) {
     }, [props.entityName]);
 
     const entityRedirect = useCallback(function (id: number) {
-        let url = location.pathname.replace(/\/$/, "");
+        const url = location.pathname.replace(/\/$/, "");
         navigate(url + "/" + id);
     }, [location.pathname, navigate]);
 
@@ -63,11 +63,11 @@ function RatGrid(props: GridProps) {
 
     // Rebuild columns whenever raw data or locales change so headers/labels stay localized.
     const buildColumns = useCallback(function () {
-        let columnsData: Array<GridColDef> = [];
+        const columnsData: Array<GridColDef> = [];
         const optionsData: { [field: string]: SelectOptions } = {};
 
         rawColumns.forEach(function (column: GridColumn) {
-            let columnObject: GridColDef = {
+            const columnObject: GridColDef = {
                 field: lowerFirstLetter(column.name),
                 headerName: column.entryType !== "EnumIcon" ? locales[column.name] : ""
             };
