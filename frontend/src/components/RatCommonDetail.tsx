@@ -31,7 +31,7 @@ function RatCommonDetail(props: CommonDetailProps) {
 
     const getDetailData = useCallback(function () {
         if (props.entityId) {
-            axios.post("/entity/getentity/", { id: parseInt(props.entityId), entityName: props.entityName })
+            axios.post("/entity/getentity/", { id: Number(props.entityId), entityName: props.entityName })
                 .then(function (response) {
                     setDetailData(response.data);
                 })

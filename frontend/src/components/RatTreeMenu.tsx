@@ -9,12 +9,12 @@ function RatTreeMenu(props: TreeMenuProps) {
 
     const getMenuData = useCallback(function () {
         axios.post(props.apiSource)
-        .then(function (response) {
-            setMenuData(response.data);
-        })
-        .catch(function (error) {
-            console.error("Failed to load menu", error);
-        });
+            .then(function (response) {
+                setMenuData(response.data);
+            })
+            .catch(function (error) {
+                console.error("Failed to load menu", error);
+            });
     }, [props.apiSource]);
 
     useEffect(() => {

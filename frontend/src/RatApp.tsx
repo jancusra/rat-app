@@ -8,7 +8,7 @@ import RatLocales from './contexts/RatLocales';
 import RatAppContext from './contexts/RatAppContext';
 import RatWebHeader from './sections/RatWebHeader';
 import RatErrorBoundary from './components/RatErrorBoundary';
-import { GetCurrentLanguageId, ChangeStorageItemBoolState } from './Utils';
+import { GetCurrentLanguageId, ChangeStorageItemBoolState, IsAdminLayout } from './Utils';
 import { LocaleContext, UserData, UserContext, AppContext } from './types';
 
 // Build-time override (RAT_API_URL); otherwise target the host the page was loaded from.
@@ -109,7 +109,7 @@ function RatRoutedContent(props: RatLayoutProps) {
 function RatLayout(props: RatLayoutProps) {
     const location = useLocation();
     const navigate = useNavigate();
-    const adminArea = location.pathname.startsWith("/admin");
+    const adminArea = IsAdminLayout(location.pathname);
     const blockAdmin = adminArea && props.userLoaded && !props.userData.isAdmin;
 
     // Keep non-admins out of the admin area entirely.

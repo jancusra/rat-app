@@ -4,6 +4,7 @@ import RatUser from '../contexts/RatUser';
 import RatLocales from '../contexts/RatLocales';
 import RatAppContext from '../contexts/RatAppContext';
 import RatIcon from '../components/RatIcon';
+import { IsAdminLayout } from '../Utils';
 
 function RatWebHeader() {
     const user = useContext(RatUser);
@@ -11,7 +12,7 @@ function RatWebHeader() {
     const { setLanguage, toggleAdminMenu } = useContext(RatAppContext);
     const location = useLocation();
     const navigate = useNavigate();
-    const adminLayout = location.pathname.startsWith("/admin");
+    const adminLayout = IsAdminLayout(location.pathname);
 
     function flagSrc(code: string): string | undefined {
         try {

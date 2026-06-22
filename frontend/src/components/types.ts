@@ -2,13 +2,16 @@ export type SelectOptions = {
     [key: number]: string
 }
 
+// Value a form field or grid cell can hold
+export type FieldValue = number | string | boolean | Array<number> | Array<string>;
+
 export type FormControlState = {
     name: string;
-    value: number | string | boolean | Array<number> | Array<string>;
+    value: FieldValue;
 }
 
 export type RatFormData = {
-    [key: string]: number | string | boolean | Array<number> | Array<string>
+    [key: string]: FieldValue
 }
 
 // Entry kinds shared by form fields and grid columns
@@ -34,7 +37,7 @@ export type EntityField = {
 }
 
 export type FormEntry = EntityField & {
-    value: number | string | boolean | Array<number> | Array<string>;
+    value: FieldValue;
 }
 
 export type GridColumn = EntityField & {

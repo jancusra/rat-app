@@ -17,7 +17,7 @@ function RatCommonForm(props: CommonFormProps) {
 
     const getFormData = useCallback(function () {
         if (props.entityId) {
-            axios.post("/entity/getentity/", { id: parseInt(props.entityId), entityName: props.entityName })
+            axios.post("/entity/getentity/", { id: Number(props.entityId), entityName: props.entityName })
                 .then(function (response) {
                     setFormData(response.data);
 

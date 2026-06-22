@@ -144,7 +144,7 @@ function RatGrid(props: GridProps) {
                         <Button variant="contained"
                             color="secondary"
                             startIcon={<EditIcon />}
-                            disabled={row.hasOwnProperty("isSystemEntry") ? row.isSystemEntry : false}
+                            disabled={"isSystemEntry" in row ? row.isSystemEntry : false}
                             onClick={() => entityRedirect(row.id)}>
                             {locales.Edit}
                         </Button>
@@ -157,7 +157,7 @@ function RatGrid(props: GridProps) {
                         <Button variant="contained"
                             color="error"
                             startIcon={<DeleteIcon />}
-                            disabled={row.hasOwnProperty("isSystemEntry") ? row.isSystemEntry : false}
+                            disabled={"isSystemEntry" in row ? row.isSystemEntry : false}
                             onClick={() => deleteEntry(row.id)}>
                             {locales.Delete}
                         </Button>
@@ -190,7 +190,7 @@ function RatGrid(props: GridProps) {
 
         rawColumns.forEach(function (column: GridColumn) {
             const field = lowerFirstLetter(column.name);
-            if (field === "id" || column.hidden) {
+            if (column.name === "Id" || column.hidden) {
                 defaults[field] = false;
             }
         });

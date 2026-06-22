@@ -4,7 +4,7 @@ import RatEntityList from '../components/RatEntityList';
 import RatEntityForm from '../components/RatEntityForm';
 import RatEntityDetail from '../components/RatEntityDetail';
 
-const AdminLayout = React.lazy(() => import('./index'));
+const AdminLayout = React.lazy(() => import('./RatAdminLayout'));
 const Dashboard = React.lazy(() => import('./Dashboard'));
 const NotFound = React.lazy(() => import('../web/NotFound'));
 

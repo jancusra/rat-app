@@ -1,5 +1,5 @@
-export const IsAdminLayout = () => {
-    return window.location.pathname.startsWith("/admin");
+export const IsAdminLayout = (pathname: string) => {
+    return pathname.startsWith("/admin");
 }
 
 export const GetCurrentLanguageId = () => {
@@ -9,10 +9,10 @@ export const GetCurrentLanguageId = () => {
         langId = "0";
     }
 
-    return parseInt(langId);
+    return Number(langId);
 }
 
- export const ChangeStorageItemBoolState = (storageItemKey: string) => {
+export const ChangeStorageItemBoolState = (storageItemKey: string) => {
     if (localStorage.getItem(storageItemKey) === "true") {
         localStorage.setItem(storageItemKey, "false");
     } else {

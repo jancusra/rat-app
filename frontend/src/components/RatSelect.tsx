@@ -15,7 +15,7 @@ function RatSelect(props: SelectProps) {
 
         props.callback({
             name: props.name,
-            value: parseInt(e.target.value)
+            value: Number(e.target.value)
         });
     }
 

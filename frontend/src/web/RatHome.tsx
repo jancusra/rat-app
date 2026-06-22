@@ -25,10 +25,10 @@ function RatHome() {
                 <img src={ratImage} className="rat-image" alt="Rat logo" />
                 {!user.data.email ?
                     <>
-                        <Button variant="contained" onClick={() => {navigate("/login");}}>
+                        <Button variant="contained" onClick={() => navigate("/login")}>
                             {locales.Login}
                         </Button>
-                        <Button variant="outlined" onClick={() => {navigate("/register");}}>
+                        <Button variant="outlined" onClick={() => navigate("/register")}>
                             {locales.Register}
                         </Button>
                     </>

@@ -4,12 +4,13 @@ import axios from 'axios';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import RatLocales from '../contexts/RatLocales';
-import { GetCurrentLanguageId } from '../Utils';
+import RatAppContext from '../contexts/RatAppContext';
 import { RatFormData, FormEntry, ValidationResult } from './types';
 
 function RatForm(props: RatFormProps) {
     const [commonMessage, setCommonMessage] = useState<string>("");
     const locales = useContext(RatLocales);
+    const { languageId } = useContext(RatAppContext);
     const navigate = useNavigate();
 
     function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -23,7 +24,7 @@ function RatForm(props: RatFormProps) {
         }
 
         let data = props.entityName
-            ? { entityName: props.entityName, data: reducedFormData, languageId: GetCurrentLanguageId() }
+            ? { entityName: props.entityName, data: reducedFormData, languageId }
             : props.formData;
 
         axios.post(props.apiSource, data)

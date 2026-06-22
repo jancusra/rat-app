@@ -28,7 +28,7 @@ function RatMultiSelect(props: MultiSelectProps) {
         let selectedOptions: Array<SelectOption> = [];
 
         for (let key in props.selectData) {
-            let id = props.stringValues ? props.selectData[key] : parseInt(key);
+            let id = props.stringValues ? props.selectData[key] : Number(key);
             let option: SelectOption = { id: id, name: props.selectData[key] };
             allOptions.push(option);
 
