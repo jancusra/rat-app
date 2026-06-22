@@ -21,3 +21,10 @@ export type UserContext = {
     data: UserData;
     getUserData: () => void;
 }
+
+export type AppContext = {
+    languageId: number;
+    setLanguage: (id: number) => void;
+    hiddenAdminMenu: boolean;
+    toggleAdminMenu: () => void;
+}

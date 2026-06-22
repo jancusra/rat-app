@@ -35,16 +35,19 @@ function RatRegisterForm() {
             <RatTextField
                 name="email"
                 label={locales.Email}
+                value={String(formData.email ?? '')}
                 callback={updateField} />
             <RatTextField
                 name="password"
                 type="password"
                 label={locales.Password}
+                value={String(formData.password ?? '')}
                 callback={updateField} />
             <RatTextField
                 name="passwordVerify"
                 type="password"
                 label={locales.PasswordVerify}
+                value={String(formData.passwordVerify ?? '')}
                 callback={updateField} />
         </RatForm>
     );

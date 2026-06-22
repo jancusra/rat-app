@@ -14,6 +14,8 @@ function RatTreeMenuItem(props: TreeMenuItemProps) {
     const [open, setOpen] = useState(true);
     const locales = useContext(RatLocales);
     const navigate = useNavigate();
+    const depth = props.depth ?? 0;
+    const hasChildren = props.menuData.childMenuItems.length > 0;
 
     function handleClick(url: string) {
         if (url) {
@@ -25,27 +27,22 @@ function RatTreeMenuItem(props: TreeMenuItemProps) {
 
     return (
         <>
-            <ListItemButton onClick={() => handleClick(props.menuData.url)}>
+            <ListItemButton onClick={() => handleClick(props.menuData.url)} sx={{ pl: 2 + depth * 2 }}>
                 <ListItemIcon>
                     <RatIcon name={props.menuData.icon} />
                 </ListItemIcon>
                 <ListItemText primary={locales[props.menuData.title]} />
-                {props.menuData.childMenuItems.length > 0 && <>
+                {hasChildren && <>
                     {open ? <RatIcon name="expand_less" />
                         : <RatIcon name="expand_more" />
                     }</>}
             </ListItemButton>
-            {props.menuData.childMenuItems.length > 0 &&
+            {hasChildren &&
                 <Collapse in={open} timeout="auto" unmountOnExit>
                     <List component="div" disablePadding>
                         {props.menuData.childMenuItems.map((menuItem) => {
                             return (
-                                <ListItemButton key={menuItem.id} onClick={() => handleClick(menuItem.url)} sx={{ pl: 4 }}>
-                                    <ListItemIcon>
-                                        <RatIcon name={menuItem.icon} />
-                                    </ListItemIcon>
-                                    <ListItemText primary={locales[menuItem.title]} />
-                                </ListItemButton>
+                                <RatTreeMenuItem key={menuItem.id} menuData={menuItem} depth={depth + 1} />
                             );
                         })}
                     </List>
@@ -58,5 +55,6 @@ function RatTreeMenuItem(props: TreeMenuItemProps) {
 export default RatTreeMenuItem;
 
 type TreeMenuItemProps = {
-    menuData: TreeMenuItem
+    menuData: TreeMenuItem;
+    depth?: number;
 }

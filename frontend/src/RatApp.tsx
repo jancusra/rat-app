@@ -5,9 +5,10 @@ import RatAdminRoutes from './admin/RatAdminRoutes';
 import RatWebRoutes from './web/RatWebRoutes';
 import RatUser from './contexts/RatUser';
 import RatLocales from './contexts/RatLocales';
+import RatAppContext from './contexts/RatAppContext';
 import RatWebHeader from './sections/RatWebHeader';
-import { GetCurrentLanguageId } from './Utils';
-import { LocaleContext, UserData, UserContext } from './types';
+import { GetCurrentLanguageId, ChangeStorageItemBoolState } from './Utils';
+import { LocaleContext, UserData, UserContext, AppContext } from './types';
 
 // Build-time override (RAT_API_URL); otherwise target the host the page was loaded from.
 axios.defaults.baseURL = __RAT_API_URL__ || `${window.location.protocol}//${window.location.hostname}:47050/api`;
@@ -17,6 +18,10 @@ function RatApp() {
     const [userData, setUserData] = useState<UserData>({});
     const [userLoaded, setUserLoaded] = useState(false);
     const [locales, setLocales] = useState<LocaleContext>({});
+    const [languageId, setLanguageId] = useState<number>(GetCurrentLanguageId());
+    const [hiddenAdminMenu, setHiddenAdminMenu] = useState<boolean>(
+        localStorage.getItem("hiddenAdminMenu") === "true"
+    );
 
     function getUserData() {
         axios.get("/user/getCurrentUserData")
@@ -31,8 +36,8 @@ function RatApp() {
             });
     }
 
-    function getLocales() {
-        axios.get("/localization/getByLanguageId?languageId=" + GetCurrentLanguageId())
+    function getLocales(langId: number) {
+        axios.get("/localization/getByLanguageId?languageId=" + langId)
             .then(function (response) {
                 setLocales(response.data);
             })
@@ -41,26 +46,49 @@ function RatApp() {
             });
     }
 
+    function setLanguage(id: number) {
+        localStorage.setItem("languageId", id.toString());
+        setLanguageId(id);
+    }
+
+    function toggleAdminMenu() {
+        ChangeStorageItemBoolState("hiddenAdminMenu");
+        setHiddenAdminMenu((prev) => !prev);
+    }
+
     const userContext: UserContext = {
         data: userData,
         getUserData
     }
 
+    const appContext: AppContext = {
+        languageId,
+        setLanguage,
+        hiddenAdminMenu,
+        toggleAdminMenu
+    }
+
     useEffect(() => {
         getUserData();
-        getLocales();
     }, [])
+
+    // Re-fetch only locales when the language changes (no full page reload).
+    useEffect(() => {
+        getLocales(languageId);
+    }, [languageId])
 
     return (
         <RatUser.Provider value={userContext}>
-            <RatLocales.Provider value={locales}>
-                <BrowserRouter>
-                    <RatWebHeader />
-                    <Suspense fallback={<div>Loading...</div>}>
-                        <RatLayout userData={userData} userLoaded={userLoaded} />
-                    </Suspense>
-                </BrowserRouter>
-            </RatLocales.Provider>
+            <RatAppContext.Provider value={appContext}>
+                <RatLocales.Provider value={locales}>
+                    <BrowserRouter>
+                        <RatWebHeader />
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <RatLayout userData={userData} userLoaded={userLoaded} />
+                        </Suspense>
+                    </BrowserRouter>
+                </RatLocales.Provider>
+            </RatAppContext.Provider>
         </RatUser.Provider>
     );
 }

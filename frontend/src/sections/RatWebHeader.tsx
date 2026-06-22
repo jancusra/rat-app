@@ -1,22 +1,17 @@
 import { useContext } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import RatUser from '../contexts/RatUser';
 import RatLocales from '../contexts/RatLocales';
+import RatAppContext from '../contexts/RatAppContext';
 import RatIcon from '../components/RatIcon';
-import { IsAdminLayout, ChangeStorageItemBoolState } from '../Utils';
 
 function RatWebHeader() {
     const user = useContext(RatUser);
     const locales = useContext(RatLocales);
-
-    function changeAdminMenu() {
-        ChangeStorageItemBoolState("hiddenAdminMenu");
-        window.location.reload();
-    }
-
-    function setLanguage(id: number) {
-        localStorage.setItem("languageId", id.toString());
-        window.location.reload();
-    }
+    const { setLanguage, toggleAdminMenu } = useContext(RatAppContext);
+    const location = useLocation();
+    const navigate = useNavigate();
+    const adminLayout = location.pathname.startsWith("/admin");
 
     function flagSrc(code: string): string | undefined {
         try {
@@ -38,30 +33,30 @@ function RatWebHeader() {
 
     return (
         <div className="rat-web-header">
-            {IsAdminLayout() ?
+            {adminLayout ?
                 <div className="admin-menu-icon" role="button" tabIndex={0}
-                    onClick={changeAdminMenu} onKeyDown={onActivateKey(changeAdminMenu)}>
+                    onClick={toggleAdminMenu} onKeyDown={onActivateKey(toggleAdminMenu)}>
                     <RatIcon name="menu" />
                 </div>
                 : null}
             {user.data.email ?
                 <div className="logged-user" role="button" tabIndex={0}
-                    onClick={() => { location.href = "/" }}
-                    onKeyDown={onActivateKey(() => { location.href = "/" })}>
+                    onClick={() => navigate("/")}
+                    onKeyDown={onActivateKey(() => navigate("/"))}>
                     Logged as <span className="logged-user-email">{user.data.email}</span>
                 </div>
                 : null}
-            {user.data.isAdmin && !IsAdminLayout() ?
+            {user.data.isAdmin && !adminLayout ?
                 <div className="admin-link" role="button" tabIndex={0}
-                    onClick={() => { location.href = "/admin" }}
-                    onKeyDown={onActivateKey(() => { location.href = "/admin" })}>
+                    onClick={() => navigate("/admin")}
+                    onKeyDown={onActivateKey(() => navigate("/admin"))}>
                     {locales.Administration}
                 </div>
                 : null}
-            {IsAdminLayout() ?
+            {adminLayout ?
                 <div className="admin-link" role="button" tabIndex={0}
-                    onClick={() => { location.href = "/" }}
-                    onKeyDown={onActivateKey(() => { location.href = "/" })}>
+                    onClick={() => navigate("/")}
+                    onKeyDown={onActivateKey(() => navigate("/"))}>
                     {locales.PublicWeb}
                 </div>
                 : null}

@@ -1,9 +1,11 @@
+import { useContext } from 'react';
 import { Outlet } from 'react-router-dom';
 import RatTreeMenu from '../components/RatTreeMenu';
+import RatAppContext from '../contexts/RatAppContext';
 import '../css/admin.css';
 
 function RatAdminLayout() {
-    const hiddenAdminMenu = localStorage.getItem("hiddenAdminMenu") === "true";
+    const { hiddenAdminMenu } = useContext(RatAppContext);
 
     return (
         <>
