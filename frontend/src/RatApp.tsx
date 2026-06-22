@@ -7,6 +7,7 @@ import RatUser from './contexts/RatUser';
 import RatLocales from './contexts/RatLocales';
 import RatAppContext from './contexts/RatAppContext';
 import RatWebHeader from './sections/RatWebHeader';
+import RatErrorBoundary from './components/RatErrorBoundary';
 import { GetCurrentLanguageId, ChangeStorageItemBoolState } from './Utils';
 import { LocaleContext, UserData, UserContext, AppContext } from './types';
 
@@ -83,9 +84,11 @@ function RatApp() {
                 <RatLocales.Provider value={locales}>
                     <BrowserRouter>
                         <RatWebHeader />
-                        <Suspense fallback={<div>Loading...</div>}>
-                            <RatLayout userData={userData} userLoaded={userLoaded} />
-                        </Suspense>
+                        <RatErrorBoundary>
+                            <Suspense fallback={<div>Loading...</div>}>
+                                <RatLayout userData={userData} userLoaded={userLoaded} />
+                            </Suspense>
+                        </RatErrorBoundary>
                     </BrowserRouter>
                 </RatLocales.Provider>
             </RatAppContext.Provider>

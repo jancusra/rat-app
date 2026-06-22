@@ -86,38 +86,42 @@ function RatCommonForm(props: CommonFormProps) {
             formErrors={formErrors}
             formSubmit={formSubmit}>
             {formData.map((formEntry) => {
-                return (
-                    {
-                        'Boolean': <RatCheckbox
+                switch (formEntry.entryType) {
+                    case 'Boolean':
+                        return <RatCheckbox
                             key={formEntry.name}
                             name={formEntry.name}
                             label={locales[formEntry.name]}
                             value={formEntry.value as boolean}
-                            callback={updateField} />,
-                        'String': <RatTextField
+                            callback={updateField} />;
+                    case 'String':
+                        return <RatTextField
                             key={formEntry.name}
                             name={formEntry.name}
                             label={locales[formEntry.name]}
                             value={formEntry.value == null ? '' : formEntry.value as string}
                             error={validationData[formEntry.name]?.error}
                             errorMessage={validationData[formEntry.name]?.message}
-                            callback={updateField} />,
-                        'Enum': <RatSelect
+                            callback={updateField} />;
+                    case 'Enum':
+                        return <RatSelect
                             key={formEntry.name}
                             name={formEntry.name}
                             label={locales[formEntry.name]}
                             value={formEntry.value as number}
                             selectData={formEntry.selectOptions}
-                            callback={updateField} />,
-                        'MappedMultiSelect': <RatMultiSelect
+                            callback={updateField} />;
+                    case 'MappedMultiSelect':
+                        return <RatMultiSelect
                             key={formEntry.name}
                             name={formEntry.name}
                             label={locales[formEntry.name]}
                             value={formEntry.value as Array<number>}
                             selectData={formEntry.selectOptions}
-                            callback={updateField} />
-                    }[formEntry.entryType]
-                );
+                            callback={updateField} />;
+                    default:
+                        return null;
+                }
             })}
         </RatForm>
     );

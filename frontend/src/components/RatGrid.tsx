@@ -9,8 +9,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RatIcon from './RatIcon';
 import RatMultiSelect from '../components/RatMultiSelect';
 import RatLocales from '../contexts/RatLocales';
+import RatUser from '../contexts/RatUser';
+import RatAppContext from '../contexts/RatAppContext';
 import { IconsByString } from '../fonts/IconsByString';
-import { SelectOptions } from './types';
+import { GridColumn, SelectOptions } from './types';
 
 function lowerFirstLetter(str: string) {
   return str.charAt(0).toLowerCase() + str.slice(1);
@@ -23,8 +25,15 @@ function RatGrid(props: GridProps) {
   const [gridData, setGridData] = useState([]);
   const [hiddenColumns, setHiddenColumns] = useState<GridColumnVisibilityModel>({});
   const locales = useContext(RatLocales);
+  const user = useContext(RatUser);
+  const { languageId } = useContext(RatAppContext);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Locale for date formatting: culture of the selected language, fallback to en-us.
+  const dateCulture = user.data.languages?.find(
+    (language) => language.id === languageId
+  )?.languageCulture || 'en-us';
 
   const getGridData = useCallback(function () {
     axios.post("/entity/getalltotable", { entityName: props.entityName })
@@ -81,7 +90,7 @@ function RatGrid(props: GridProps) {
         case "DateTime": {
           columnObject["valueGetter"] = (value: string) => {
             const date = new Date(value);
-            return date.toLocaleString('en-us');
+            return date.toLocaleString(dateCulture);
           };
           columnObject["flex"] = 1;
           break;
@@ -170,7 +179,7 @@ function RatGrid(props: GridProps) {
     });
 
     setColumns(columnsData);
-  }, [rawColumns, locales, entityRedirect, deleteEntry]);
+  }, [rawColumns, locales, dateCulture, entityRedirect, deleteEntry]);
 
   // Default visibility depends only on the schema; merge so user toggles win.
   useEffect(() => {
@@ -214,15 +223,4 @@ export default RatGrid;
 
 type GridProps = {
   entityName: string;
-}
-
-type GridColumn = {
-  entryType: string;
-  excluded: boolean;
-  hidden: boolean;
-  name: string;
-  order: number;
-  selectOptions: SelectOptions;
-  flex: number;
-  width: number;
 }

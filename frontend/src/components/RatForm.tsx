@@ -8,7 +8,7 @@ import { GetCurrentLanguageId } from '../Utils';
 import { RatFormData, FormEntry, ValidationResult } from './types';
 
 function RatForm(props: RatFormProps) {
-    const [commonMessage, setMessage] = useState<string>("");
+    const [commonMessage, setCommonMessage] = useState<string>("");
     const locales = useContext(RatLocales);
     const navigate = useNavigate();
 
@@ -16,15 +16,14 @@ function RatForm(props: RatFormProps) {
         e.preventDefault();
         let reducedFormData: RatFormData = {};
 
-        if (Array.isArray(props.formData))
-        {
+        if (Array.isArray(props.formData)) {
             props.formData.forEach(function (formEntry) {
                 reducedFormData[formEntry.name] = formEntry.value;
             });
         }
 
-        let data = props.entityName 
-            ? { entityName: props.entityName, data: reducedFormData, languageId: GetCurrentLanguageId() } 
+        let data = props.entityName
+            ? { entityName: props.entityName, data: reducedFormData, languageId: GetCurrentLanguageId() }
             : props.formData;
 
         axios.post(props.apiSource, data)
@@ -36,7 +35,7 @@ function RatForm(props: RatFormProps) {
                 }
             })
             .catch(function (error) {
-                setMessage(error.response?.data?.ResultReason ?? error.message);
+                setCommonMessage(error.response?.data?.ResultReason ?? error.message);
             });
     }
 
@@ -49,32 +48,32 @@ function RatForm(props: RatFormProps) {
             {props.children}
             <div className="form-final-buttons">
                 <Button
-                    type="submit" 
+                    type="submit"
                     variant="contained">
-                        {props.buttonContent}
+                    {props.buttonContent}
                 </Button>
                 {props.showCancelButton ?
                     <Button
                         variant="contained"
                         color="error"
                         onClick={() => handleCancel()}>
-                            {locales.Cancel}
+                        {locales.Cancel}
                     </Button>
                     : null}
                 {props.showBackButton ?
                     <Button
                         variant="outlined"
                         onClick={() => handleCancel()}>
-                            {locales.Back}
+                        {locales.Back}
                     </Button>
                     : null}
             </div>
-            {commonMessage ? 
-                <Alert 
+            {commonMessage ?
+                <Alert
                     className="rat-form-alert"
                     severity="error">
-                        {commonMessage}
-                </Alert> 
+                    {commonMessage}
+                </Alert>
                 : null}
         </form>
     );

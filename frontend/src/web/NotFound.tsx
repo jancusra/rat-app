@@ -1,5 +1,9 @@
+import { useContext } from 'react';
+import RatLocales from '../contexts/RatLocales';
+
 function NotFound() {
-    return <div>Page not found!</div>
+    const locales = useContext(RatLocales);
+    return <div>{locales.PageNotFound}</div>
 }
 
 export default NotFound;
