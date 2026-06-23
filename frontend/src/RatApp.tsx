@@ -31,7 +31,7 @@ function RatApp() {
     );
 
     function getUserData() {
-        axios.get("/user/getCurrentUserData")
+        return axios.get("/user/getCurrentUserData")
             .then(function (response) {
                 setUserData(response.data);
             })
@@ -41,6 +41,10 @@ function RatApp() {
             .finally(function () {
                 setUserLoaded(true);
             });
+    }
+
+    function clearUserData() {
+        setUserData({});
     }
 
     function getLocales(langId: number) {
@@ -65,7 +69,8 @@ function RatApp() {
 
     const userContext: UserContext = {
         data: userData,
-        getUserData
+        getUserData,
+        clearUserData
     }
 
     const appContext: AppContext = {
@@ -104,7 +109,7 @@ function RatRoutedContent(props: RatLayoutProps) {
 
     return (
         <RatErrorBoundary resetKey={location.pathname}>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={null}>
                 <RatLayout userData={props.userData} userLoaded={props.userLoaded} />
             </Suspense>
         </RatErrorBoundary>

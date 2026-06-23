@@ -3,7 +3,8 @@ import { UserContext } from '../types';
 
 const defaultValue: UserContext = {
     data: {},
-    getUserData: () => void 0
+    getUserData: () => Promise.resolve(),
+    clearUserData: () => void 0
 };
 
 const RatUser = createContext<UserContext>(defaultValue);

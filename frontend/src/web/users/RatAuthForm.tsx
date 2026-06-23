@@ -22,8 +22,9 @@ function RatAuthForm(props: AuthFormProps) {
     }
 
     function formSubmit() {
-        user.getUserData();
-        navigate("/");
+        user.getUserData().then(function () {
+            navigate("/");
+        });
     }
 
     return (

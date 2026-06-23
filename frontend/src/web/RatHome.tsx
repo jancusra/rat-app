@@ -14,7 +14,8 @@ function RatHome() {
     function logout() {
         axios.post("/auth/logout")
             .then(function () {
-                window.location.href = "/";
+                user.clearUserData();
+                navigate("/");
             })
             .catch(function (error) {
                 console.error("Failed to logout", error);

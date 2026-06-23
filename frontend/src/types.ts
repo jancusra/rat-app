@@ -19,7 +19,8 @@ export type UserData = {
 
 export type UserContext = {
     data: UserData;
-    getUserData: () => void;
+    getUserData: () => Promise<void>;
+    clearUserData: () => void;
 }
 
 export type AppContext = {
