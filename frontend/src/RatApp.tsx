@@ -17,9 +17,9 @@ import {
 } from './Utils';
 import { LocaleContext, UserData, UserContext, AppContext } from './types';
 
-// Build-time override (RAT_API_URL); otherwise target the host the page was loaded from.
-axios.defaults.baseURL = __RAT_API_URL__ || `${window.location.protocol}//${window.location.hostname}:47050/api`;
-axios.defaults.withCredentials = true; // send the HttpOnly auth cookie cross-origin
+// Build-time override (RAT_API_URL); otherwise same-origin /api proxied by nginx.
+axios.defaults.baseURL = __RAT_API_URL__ || "/api";
+axios.defaults.withCredentials = true; // send the HttpOnly auth cookie
 
 function RatApp() {
     const [userData, setUserData] = useState<UserData>({});

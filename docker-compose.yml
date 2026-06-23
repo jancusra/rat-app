@@ -62,8 +62,11 @@ services:
       # API with credentials. Lets one "compose up" serve both localhost and LAN
       # clients with no per-IP config (trusted networks only); see .env.
       Cors__AllowPrivateNetwork: "${CORS_ALLOW_PRIVATE_NETWORK:-false}"
-    ports:
-      - "47050:47050"
+    # Not published to the host: the frontend's nginx reaches it in-network at
+    # backend:47050 and proxies it under /api, so only the frontend port is
+    # exposed. Add a "47050:47050" mapping back if you need direct API access.
+    expose:
+      - "47050"
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:47050/api/home/"]
       interval: 5s

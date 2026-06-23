@@ -24,7 +24,7 @@ docker compose up
 Once the containers are up, the app is available at:
 
 * **Web client:** http://localhost:3000 (or `http://<LAN-IP>:3000` from another device)
-* **API:** http://localhost:47050 (or `http://<LAN-IP>:47050` from another device)
+* **API:** served under the same origin at `/api` (nginx proxies it to the backend), so only port 3000 needs to be reachable.
 
 A default administrator user is seeded automatically:
 
